@@ -1,0 +1,11 @@
+*.dat
+*.nc
+*.gz
+*.png
+*.exe
+
+
+.vscode/
+__pycache__/
+Experiments/
+projection_experiments.py
