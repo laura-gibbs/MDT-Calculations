@@ -49,7 +49,10 @@ def read_dat(filename, path=None, shape=None, fortran=True, res=None, nans=False
     if path is None:
         path = ""
 
-    filepath = os.path.join(path, filename)
+    filepath = os.path.join(os.path.normpath(path), filename)
+    filepath2 = os.path.join(path, filename)
+    print("filepath = ", filepath)
+    print("filepath2 = ", filepath2)
     fid = open(filepath, mode='rb')
 
     print("shape =", shape)

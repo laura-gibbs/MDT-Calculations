@@ -46,45 +46,48 @@ def mdt_cs(II, JJ, lat, mdt, cs):
     return cs, u, v
 
 
+def bound_arr(arr, lower_bd, upper_bd):
+    arr[np.isnan(arr)] = lower_bd
+    arr[arr < lower_bd] = lower_bd
+    arr[arr > upper_bd] = upper_bd
+    return arr
+
+
 def main():
-    i1 = 0
-    i2 = 1440
-    j1 = 0
-    j2 = 720
-    II = i2 - i1
-    JJ = j2 - j1
-    IIin = 1440
-    JJin = 720
-    upper_bd = 1.5
-    lower_bd = -1.5
+    res = 0.25
+    II, JJ = define_dims(res)
+    print("II  = ", II)
+    print("JJ  = ", JJ)
 
-    if platform == "darwin":
-        path0 = './fortran/data/src'
-        path1 = './fortran/data/res'
-        path2 = './fortran/data/test'
-    elif platform == "win32":
-        path0 = '.\\fortran\\data\\src\\'
-        path1 = '.\\fortran\\data\\res\\'
-        path2 = '.\\fortran\\data\\test\\'
+    # if platform == "darwin":
+    #     path0 = './fortran/data/src'
+    #     path1 = './fortran/data/res'
+    #     path2 = './fortran/data/test'
+    # elif platform == "win32":
+    #     path0 = '.\\fortran\\data\\src\\'
+    #     path1 = '.\\fortran\\data\\res\\'
+    #     path2 = '.\\fortran\\data\\test\\'
     
-    # Define global lon and lat (lat shifted to midpts set between -90 and 90)
-    glon = np.array([0.25 * (i - 0.5) for i in range(IIin)])
-    glat = np.array([0.25 * (j - 0.5) - 90.0 for j in range(JJin)])
-    lats = np.deg2rad(0.25)
-    lat0 = np.deg2rad(-89.875)
+    path0 = './fortran/data/src'
+    path1 = './fortran/data/res'
+    path2 = './fortran/data/tes'
+    print("path0 = ", path0)
     
-    gcs = np.zeros((IIin, JJin))
+    glon, glat = create_coords(res)
+    lats = np.deg2rad(res)
+    # lat0 = np.deg2rad(-89.875)
+    
+    gcs = np.zeros((II, JJ))
 
-
-    gmdt = rd.read_dat('shmdtfile.dat', path=path1, shape=(IIin, JJin), nans=True, transpose=False)
-    mask = rd.read_dat('mask_glbl_qrtd.dat', path=path0, shape=(IIin, JJin), nans=True, transpose=False)
-    gcs, u, v = mdt_cs(IIin, JJin, glat, gmdt, gcs)
+    gmdt = rd.read_dat('shmdtfile.dat', path=path1, shape=(II, JJ), nans=True, transpose=False)
+    mask = rd.read_dat('mask_glbl_qrtd.dat', path=path0, shape=(II, JJ), nans=True, transpose=False)
+    gcs, u, v = mdt_cs(II, JJ, glat, gmdt, gcs)
 
     gmdt = gmdt + mask
     gcs = gcs + mask
 
-    mdt = gmdt[i1:i2, j1:j2]
-    cs = gcs[i1:i2, j1:j2]
+    mdt = gmdt[0:1440, 0:720]
+    cs = gcs[0:1440, 0:720]
 
     glat_rad = np.deg2rad(glat)
 
@@ -108,19 +111,12 @@ def main():
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
-    mdt = mdt.T
-    mdt[np.isnan(mdt)] = lower_bd
-    mdt[mdt < lower_bd] = lower_bd
-    mdt[mdt > upper_bd] = upper_bd
-    
-    cs = cs.T
-    cs[np.isnan(cs)] = lower_bd
-    cs[cs < lower_bd] = lower_bd
-    cs[cs > upper_bd] = upper_bd
+    mdt = bound_arr(mdt.T, -1.5, 1.5)
+    cs = bound_arr(cs.T, -1.5, 1.5)
     
     ax1.imshow(mdt)
     ax2.imshow(cs)
-    plt.show() 
+    plt.show()
 
     # write_dat(path2, 'tmp.dat', gmdt)
     # write_dat(path2, 'tmp2.dat', mdt)

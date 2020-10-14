@@ -11,6 +11,10 @@ def define_dims(res):
 
 
 def create_coords(res, rads=False):
+    r"""
+    Defines gloibal lon and lat, with lat shifted to
+    midpoints and set between -90 and 90.
+    """
     II, JJ = define_dims(res)
     glon = np.array([res * (i - 0.5) for i in range(II)])
     glat = np.array([res * (j - 0.5) - 90.0 for j in range(JJ)])
