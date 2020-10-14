@@ -1,9 +1,6 @@
 import math
 import numpy as np
-import os
-import array
 import matplotlib.pyplot as plt
-from sys import platform
 import read_data as rd
 from utils import define_dims, create_coords
 
@@ -20,13 +17,15 @@ def mdt_cs(II, JJ, lat, mdt, cs):
     lons_r = lats_r / 2
 
     # Calculate zonal width of a grid cell (m) (depends on Latitude)
-    dx = np.array([2 * r * lons_r * math.cos(np.deg2rad(lat[j])) for j in range(JJ)])
+    dx = np.array([2 * r * lons_r * math.cos(np.deg2rad(lat[j]))
+                  for j in range(JJ)])
 
     # Calculate meridional width of grid cell (m) (does not depend on lat)
     dy = r * lats_r
 
     # Calculate coriolis parameter f
-    f0 = np.array([2.0 * omega * math.sin(np.deg2rad(lat[j])) for j in range(JJ)])
+    f0 = np.array([2.0 * omega * math.sin(np.deg2rad(lat[j]))
+                  for j in range(JJ)])
 
     u = np.zeros((II, JJ))
     v = np.zeros((II, JJ))
@@ -53,57 +52,99 @@ def bound_arr(arr, lower_bd, upper_bd):
     return arr
 
 
-def main():
-    res = 0.25
+def grid_square_area(res, glat):
     II, JJ = define_dims(res)
-    print("II  = ", II)
-    print("JJ  = ", JJ)
-
-    path0 = './fortran/data/src'
-    path1 = './fortran/data/res'
-    path2 = './fortran/data/tes'
-    
-    glon, glat = create_coords(res)
     lats = np.deg2rad(res)
-    # lat0 = np.deg2rad(-89.875)
-    
-    gcs = np.zeros((II, JJ))
-
-    gmdt = rd.read_dat('shmdtfile.dat', path=path1, shape=(II, JJ), nans=True, transpose=False)
-    mask = rd.read_dat('mask_glbl_qrtd.dat', path=path0, shape=(II, JJ), nans=True, transpose=False)
-    gcs, u, v = mdt_cs(II, JJ, glat, gmdt, gcs)
-
-    gmdt = gmdt + mask
-    gcs = gcs + mask
-
-    mdt = gmdt[0:1440, 0:720]
-    cs = gcs[0:1440, 0:720]
-
     glat_rad = np.deg2rad(glat)
-
     ds = np.array([(r ** 2 * lats) * (math.sin(glat_rad[j]) -
                   math.sin(glat_rad[j-1])) for j in range(JJ)])
 
     # ds = np.array([0.5 * (r * lats) ** 2 * (math.cos(glat_rad[j]) +
     #              math.cos(glat_rad[j-1])) for j in range(JJ)])
+    return ds
 
-    sum_mdt_ds = 0.
-    ocean_area = 0.
+
+def ocean_area(mdt, ds):
+    r"""
+    Calculates ocean area from MDT and grid square area
+    """
+    area = 0.
+    II, JJ = mdt.shape[0], mdt.shape[1]
     for i in range(II):
         for j in range(JJ):
             if not np.isnan(mdt[i, j]):
-                sum_mdt_ds += mdt[i, j] * ds[j]
-                ocean_area += ds[j]
+                area += ds[j]
 
-    mn = sum_mdt_ds / ocean_area
-    mdt = mdt - mn
-    print(ocean_area, sum_mdt_ds, mn)
+    return area
+
+
+def sum_mdt_ds(mdt, ds):
+    r"""
+    Approximates ocean volume from MDT and grid square area?
+    """
+    sm = 0.
+    II, JJ = mdt.shape[0], mdt.shape[1]
+    for i in range(II):
+        for j in range(JJ):
+            if not np.isnan(mdt[i, j]):
+                sm += mdt[i, j] * ds[j]
+
+    return sm
+
+    # ocean_area = np.sum(ds * (1 - mask))
+
+
+def centralise_data(arr, mn):
+    return arr - mn
+
+
+def main():
+    res = 0.25
+    II, JJ = define_dims(res)
+
+    path0 = './fortran/data/src'
+    path1 = './fortran/data/res'
+    # path2 = './fortran/data/test'
+
+    glon, glat = create_coords(res)
+    # lats = np.deg2rad(res)
+    # lat0 = np.deg2rad(-89.875)
+
+    gcs = np.zeros((II, JJ))
+
+    gmdt = rd.read_dat('shmdtfile.dat', path=path1, shape=(II, JJ), nans=True,
+                       transpose=False)
+    mask = rd.read_dat('mask_glbl_qrtd.dat', path=path0, shape=(II, JJ),
+                       nans=True, transpose=False)
+    gcs, u, v = mdt_cs(II, JJ, glat, gmdt, gcs)
+
+    gmdt = gmdt + mask
+    gcs = gcs + mask
+
+    mdt = gmdt
+    cs = gcs
+
+    # glat_rad = np.deg2rad(glat)
+
+    ds = grid_square_area(res, glat)
+
+    # sum_mdt_ds = 0.
+    # ocean_area = 0.
+    # for i in range(II):
+    #     for j in range(JJ):
+    #         if not np.isnan(mdt[i, j]):
+    #             sum_mdt_ds += mdt[i, j] * ds[j]
+    #             ocean_area += ds[j]
+
+    mn = sum_mdt_ds(mdt, ds) / ocean_area(mdt, ds)
+    print(ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
+    mdt = centralise_data(mdt, mn)
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
     mdt = bound_arr(mdt.T, -1.5, 1.5)
     cs = bound_arr(cs.T, -1.5, 1.5)
-    
+
     ax1.imshow(mdt)
     ax2.imshow(cs)
     plt.show()

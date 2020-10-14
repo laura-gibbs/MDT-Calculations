@@ -1,6 +1,4 @@
 import numpy as np
-import os
-import array
 import matplotlib.pyplot as plt
 import read_data as rd
 

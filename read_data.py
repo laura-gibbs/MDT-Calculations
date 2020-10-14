@@ -1,4 +1,3 @@
-import array
 import os
 import numpy as np
 from utils import define_dims
@@ -13,7 +12,7 @@ def parse_res(filename):
 
 def parse_mdt(filename):
     r"""Checks whether input file is MDT by counting number of underscores.
-    
+
     Args:
         filename (String)
 
@@ -27,7 +26,8 @@ def parse_mdt(filename):
         return False
 
 
-def read_dat(filename, path=None, shape=None, fortran=True, res=None, nans=False, transpose=True):
+def read_dat(filename, path=None, shape=None, fortran=True, res=None,
+             nans=False, transpose=True):
     r"""Reshapes surface from 1d array into an array of
     (JJ, II) records.
 
@@ -50,11 +50,7 @@ def read_dat(filename, path=None, shape=None, fortran=True, res=None, nans=False
         path = ""
 
     filepath = os.path.join(os.path.normpath(path), filename)
-    print("filepath = ", filepath)
-    print("filepath2 = ", filepath2)
     fid = open(filepath, mode='rb')
-
-    print("shape =", shape)
 
     # Loads Fortran array (CxR) or Python array (RxC)
     if fortran:
@@ -62,15 +58,14 @@ def read_dat(filename, path=None, shape=None, fortran=True, res=None, nans=False
         # Ignores the header and footer
         floats = floats[1:len(floats)-1]
         floats = np.array(floats)
-        print(shape)
         floats = np.reshape(floats, shape, order='F')
-    
+
     else:
         floats = np.frombuffer(fid.read(), dtype=np.float32)
         floats = floats[1:len(floats)-1]
         floats = np.asarray(floats)
         floats = np.reshape(floats, shape)
-    
+
     if nans:
         floats[floats <= -1.7e7] = np.nan
     if transpose:
@@ -79,7 +74,8 @@ def read_dat(filename, path=None, shape=None, fortran=True, res=None, nans=False
     return floats
 
 
-def write_dat(filename, arr, path=None, fortran=False, nan_mask=None, overwrite=False):
+def write_dat(filename, arr, path=None, fortran=False, nan_mask=None,
+              overwrite=False):
     r"""
     """
     if path is None:
@@ -87,11 +83,11 @@ def write_dat(filename, arr, path=None, fortran=False, nan_mask=None, overwrite=
     filepath = os.path.join(path, filename)
 
     if os.path.exists(filepath) and not overwrite:
-        raise OSError("File already exists. Pass overwrite=True to overwrite it.")
-    
+        raise OSError("File already exists. Pass overwrite=True to overwrite.")
+
     if filepath[len(filepath)-4:] != '.dat':
         filepath += '.dat'
-    
+
     if fortran:
         floats = arr.flatten(order='F')
     else:
@@ -113,6 +109,7 @@ def write_dat(filename, arr, path=None, fortran=False, nan_mask=None, overwrite=
     fid.write(floats)
     fid.write(footer)
     fid.close()
+
 
 def calc_residual(arr1, arr2):
     r""" Calculates the residual between two surfaces.
