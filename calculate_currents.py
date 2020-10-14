@@ -59,19 +59,9 @@ def main():
     print("II  = ", II)
     print("JJ  = ", JJ)
 
-    # if platform == "darwin":
-    #     path0 = './fortran/data/src'
-    #     path1 = './fortran/data/res'
-    #     path2 = './fortran/data/test'
-    # elif platform == "win32":
-    #     path0 = '.\\fortran\\data\\src\\'
-    #     path1 = '.\\fortran\\data\\res\\'
-    #     path2 = '.\\fortran\\data\\test\\'
-    
     path0 = './fortran/data/src'
     path1 = './fortran/data/res'
     path2 = './fortran/data/tes'
-    print("path0 = ", path0)
     
     glon, glat = create_coords(res)
     lats = np.deg2rad(res)
