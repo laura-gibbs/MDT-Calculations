@@ -43,7 +43,7 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
     if resolution is None:
         resolution = parse_res(filename)
     
-    II, JJ = define_dims(resolution)
+    II, JJ = (resolution)
 
     if path is None:
         path = ""
