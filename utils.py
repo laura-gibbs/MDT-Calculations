@@ -16,10 +16,17 @@ def create_coords(res, rads=False):
     midpoints and set between -90 and 90.
     """
     II, JJ = define_dims(res)
-    glon = np.array([res * (i - 0.5) for i in range(II)])
-    glat = np.array([res * (j - 0.5) - 90.0 for j in range(JJ)])
+    longitude = np.array([res * (i - 0.5) for i in range(II)])
+    latitude = np.array([res * (j - 0.5) - 90.0 for j in range(JJ)])
     if rads:
-        glon = np.deg2rad(glon)
-        glat = np.deg2rad(glat)
+        longitude = np.deg2rad(longitude)
+        latitude = np.deg2rad(latitude)
 
-    return glon, glat
+    return longitude, latitude
+
+
+def bound_arr(arr, lower_bd, upper_bd):
+    arr[np.isnan(arr)] = lower_bd
+    arr[arr < lower_bd] = lower_bd
+    arr[arr > upper_bd] = upper_bd
+    return arr

@@ -26,7 +26,7 @@ def parse_mdt(filename):
         return False
 
 
-def read_dat(filename, path=None, shape=None, fortran=True, res=None,
+def read_dat(filename, resolution=None, path=None, fortran=True,
              nans=False, transpose=True):
     r"""Reshapes surface from 1d array into an array of
     (JJ, II) records.
@@ -40,11 +40,10 @@ def read_dat(filename, path=None, shape=None, fortran=True, res=None,
     Returns:
         np.array: data of size (II, JJ)
     """
-    if res is None:
-        res = parse_res(filename)
-
-    if shape is None:
-        shape = define_dims(res)
+    if resolution is None:
+        resolution = parse_res(filename)
+    
+    II, JJ = define_dims(resolution)
 
     if path is None:
         path = ""
@@ -58,13 +57,13 @@ def read_dat(filename, path=None, shape=None, fortran=True, res=None,
         # Ignores the header and footer
         floats = floats[1:len(floats)-1]
         floats = np.array(floats)
-        floats = np.reshape(floats, shape, order='F')
+        floats = np.reshape(floats, (II, JJ), order='F')
 
     else:
         floats = np.frombuffer(fid.read(), dtype=np.float32)
         floats = floats[1:len(floats)-1]
         floats = np.asarray(floats)
-        floats = np.reshape(floats, shape)
+        floats = np.reshape(floats, (II, JJ))
 
     if nans:
         floats[floats <= -1.7e7] = np.nan

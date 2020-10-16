@@ -2,29 +2,32 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import read_data as rd
-from utils import define_dims, create_coords
+from utils import define_dims, create_coords, bound_arr
 
 r = 6371229.0
 omega = 7.29e-5
 g = 9.80665
 
 
-def mdt_cs(II, JJ, lat, mdt, cs):
+def mdt_cs(resolution, mdt):
     r"""
     """
     # Define parameters
-    lats_r = np.deg2rad(lat[1] - lat[0])
+    II, JJ = define_dims(resolution)
+    longitude, latitude = create_coords(resolution)
+    lats_r = np.deg2rad(latitude[1] - latitude[0])
     lons_r = lats_r / 2
+    cs = np.zeros((II, JJ))
 
     # Calculate zonal width of a grid cell (m) (depends on Latitude)
-    dx = np.array([2 * r * lons_r * math.cos(np.deg2rad(lat[j]))
+    dx = np.array([2 * r * lons_r * math.cos(np.deg2rad(latitude[j]))
                   for j in range(JJ)])
 
     # Calculate meridional width of grid cell (m) (does not depend on lat)
     dy = r * lats_r
 
     # Calculate coriolis parameter f
-    f0 = np.array([2.0 * omega * math.sin(np.deg2rad(lat[j]))
+    f0 = np.array([2.0 * omega * math.sin(np.deg2rad(latitude[j]))
                   for j in range(JJ)])
 
     u = np.zeros((II, JJ))
@@ -45,17 +48,11 @@ def mdt_cs(II, JJ, lat, mdt, cs):
     return cs, u, v
 
 
-def bound_arr(arr, lower_bd, upper_bd):
-    arr[np.isnan(arr)] = lower_bd
-    arr[arr < lower_bd] = lower_bd
-    arr[arr > upper_bd] = upper_bd
-    return arr
-
-
-def grid_square_area(res, glat):
-    II, JJ = define_dims(res)
-    lats = np.deg2rad(res)
-    glat_rad = np.deg2rad(glat)
+def grid_square_area(resolution, latitude):
+    II, JJ = define_dims(resolution)
+    lats = np.deg2rad(resolution)
+    longitude, latitude = create_coords(resolution)
+    glat_rad = np.deg2rad(latitude)
     ds = np.array([(r ** 2 * lats) * (math.sin(glat_rad[j]) -
                   math.sin(glat_rad[j-1])) for j in range(JJ)])
 
@@ -64,7 +61,7 @@ def grid_square_area(res, glat):
     return ds
 
 
-def ocean_area(mdt, ds):
+def calc_ocean_area(mdt, ds):
     r"""
     Calculates ocean area from MDT and grid square area
     """
@@ -91,12 +88,22 @@ def sum_mdt_ds(mdt, ds):
 
     return sm
 
-    # ocean_area = np.sum(ds * (1 - mask))
+    # calc_ocean_area = np.sum(ds * (1 - mask))
+
+
+def calc_mean(mdt, ds):
+    return sum_mdt_ds(mdt, ds) / calc_ocean_area(mdt, ds)
 
 
 def centralise_data(arr, mn):
     return arr - mn
 
+# def centre_mdt
+# calls helper fn to calc ocean area and volume
+# also uses centralise_data fn
+
+
+# def get_mask(mask_filename):
 
 def main():
     res = 0.25
@@ -110,13 +117,11 @@ def main():
     # lats = np.deg2rad(res)
     # lat0 = np.deg2rad(-89.875)
 
-    gcs = np.zeros((II, JJ))
-
-    gmdt = rd.read_dat('shmdtfile.dat', path=path1, shape=(II, JJ), nans=True,
+    gmdt = rd.read_dat('shmdtfile.dat', resolution=res, path=path1, nans=True,
                        transpose=False)
-    mask = rd.read_dat('mask_glbl_qrtd.dat', path=path0, shape=(II, JJ),
+    mask = rd.read_dat('mask_glbl_qrtd.dat', resolution=res, path=path0,
                        nans=True, transpose=False)
-    gcs, u, v = mdt_cs(II, JJ, glat, gmdt, gcs)
+    gcs, u, v = mdt_cs(res, gmdt)
 
     gmdt = gmdt + mask
     gcs = gcs + mask
@@ -128,16 +133,8 @@ def main():
 
     ds = grid_square_area(res, glat)
 
-    # sum_mdt_ds = 0.
-    # ocean_area = 0.
-    # for i in range(II):
-    #     for j in range(JJ):
-    #         if not np.isnan(mdt[i, j]):
-    #             sum_mdt_ds += mdt[i, j] * ds[j]
-    #             ocean_area += ds[j]
-
-    mn = sum_mdt_ds(mdt, ds) / ocean_area(mdt, ds)
-    print(ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
+    mn = calc_mean(mdt, ds)
+    # print(calc_ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
     mdt = centralise_data(mdt, mn)
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
