@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import read_data as rd
+from read_data import read_surface, write_surface
 from utils import define_dims, create_coords, bound_arr
 
 r = 6371229.0
@@ -9,7 +9,7 @@ omega = 7.29e-5
 g = 9.80665
 
 
-def mdt_cs(resolution, mdt):
+def calc_currents(resolution, mdt):
     r"""
     """
     # Define parameters
@@ -98,57 +98,82 @@ def calc_mean(mdt, ds):
 def centralise_data(arr, mn):
     return arr - mn
 
-# def centre_mdt
-# calls helper fn to calc ocean area and volume
-# also uses centralise_data fn
+
+def centralise_mdt(resolution, mdt):
+    r"""
+    """
+    longitude, latitude = create_coords(resolution)
+    ds = grid_square_area(resolution, latitude)
+    mn = calc_mean(mdt, ds)
+    mdt = centralise_data(mdt, mn)
+    return mdt
 
 
-# def get_mask(mask_filename):
+def apply_mask(resolution, surface, mask_filename=None, path=None):
+    if mask_filename is None and path is None:
+        mask = read_surface('mask_glbl_qrtd.dat', resolution,
+                            './fortran/data/src', True,
+                            False)
+    else:
+        mask = read_surface(mask_filename, resolution, path, True,
+                            False)
+    surface = surface + mask
+    return surface
+
+
+def fn_name(resolution, surface_path, surface_filename):
+    gmdt = apply_mask(
+            resolution,
+            read_surface(
+                surface_filename,
+                resolution,
+                surface_path,
+                True,
+                False
+            ))
+
+    currents, u, v = calc_currents(resolution, gmdt)
+    currents = apply_mask(resolution, currents)
+    mdt = centralise_mdt(resolution, gmdt)
+    return mdt, currents
+
 
 def main():
     res = 0.25
-    II, JJ = define_dims(res)
+    # II, JJ = define_dims(res)
 
-    path0 = './fortran/data/src'
+    # path0 = './fortran/data/src'
     path1 = './fortran/data/res'
     # path2 = './fortran/data/test'
+    mdt_filename = 'shmdtfile.dat'
 
-    glon, glat = create_coords(res)
-    # lats = np.deg2rad(res)
-    # lat0 = np.deg2rad(-89.875)
+    mdt, cs = fn_name(res, path1, mdt_filename)
 
-    gmdt = rd.read_dat('shmdtfile.dat', resolution=res, path=path1, nans=True,
-                       transpose=False)
-    mask = rd.read_dat('mask_glbl_qrtd.dat', resolution=res, path=path0,
-                       nans=True, transpose=False)
-    gcs, u, v = mdt_cs(res, gmdt)
+    # gmdt = apply_mask(res, read_surface(mdt_filename, resolution=res,
+    #                   path=path1, nans=True, transpose=False))
 
-    gmdt = gmdt + mask
-    gcs = gcs + mask
+    # gcs, u, v = calc_currents(res, gmdt)
+    # gcs = apply_mask(res, gcs)
 
-    mdt = gmdt
-    cs = gcs
+    # mdt = centralise_mdt(res, gmdt)
+    # mdt = bound_arr(mdt.T, -1.5, 1.5)
+    # cs = bound_arr(gcs.T, -1.5, 1.5)
 
-    # glat_rad = np.deg2rad(glat)
-
-    ds = grid_square_area(res, glat)
-
-    mn = calc_mean(mdt, ds)
-    # print(calc_ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
-    mdt = centralise_data(mdt, mn)
-
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-
+    # ds = grid_square_area(res, glat)
+    # mn = calc_mean(mdt, ds)
+    # # print(calc_ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
+    # mdt = centralise_data(mdt, mn)
+    
     mdt = bound_arr(mdt.T, -1.5, 1.5)
     cs = bound_arr(cs.T, -1.5, 1.5)
-
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.imshow(mdt)
     ax2.imshow(cs)
     plt.show()
 
-    # write_dat(path2, 'tmp.dat', gmdt)
-    # write_dat(path2, 'tmp2.dat', mdt)
-    # write_dat(path2, 'shmdtout.dat', cs)
+    # write_surface(path2, 'tmp.dat', gmdt)
+    # write_surface(path2, 'tmp2.dat', mdt)
+    # write_surface(path2, 'shmdtout.dat', cs)
 
 
 if __name__ == '__main__':

@@ -26,8 +26,8 @@ def parse_mdt(filename):
         return False
 
 
-def read_dat(filename, resolution=None, path=None, fortran=True,
-             nans=False, transpose=True):
+def read_surface(filename, resolution=None, path=None, fortran=True,
+                 nans=False, transpose=True):
     r"""Reshapes surface from 1d array into an array of
     (JJ, II) records.
 
@@ -73,8 +73,8 @@ def read_dat(filename, resolution=None, path=None, fortran=True,
     return floats
 
 
-def write_dat(filename, arr, path=None, fortran=False, nan_mask=None,
-              overwrite=False):
+def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
+                  overwrite=False):
     r"""
     """
     if path is None:
