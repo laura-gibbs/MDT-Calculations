@@ -4,10 +4,11 @@ import os
 import array
 import matplotlib.pyplot as plt
 
-path0 = '.\\fortran\\data\\src\\'
-path1 = '.\\fortran\\data\\res\\'
-
 
 def main():
+    path1='./data/src/'
+    path2='./data/res/'
+    pathout='./data/res/'
+
     if __name__ == '__main__':
         main()
