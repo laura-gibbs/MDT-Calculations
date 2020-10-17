@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+from utils import define_dims
 
 def parse_res(filename):
     for letter in range(len(filename)):
@@ -26,7 +26,7 @@ def parse_mdt(filename):
 
 
 def read_surface(filename, resolution=None, path=None, fortran=True,
-                 nans=False, transpose=True):
+                 nans=True, transpose=False):
     r"""Reshapes surface from 1d array into an array of
     (JJ, II) records.
 
@@ -41,8 +41,9 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
     """
     if resolution is None:
         resolution = parse_res(filename)
-    
-    II, JJ = (resolution)
+
+    II, JJ = define_dims(resolution)
+    print(II, JJ, resolution)
 
     if path is None:
         path = ""
@@ -107,6 +108,24 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
     fid.write(floats)
     fid.write(footer)
     fid.close()
+
+
+def apply_mask(resolution, surface, mask_filename=None, path=None):
+    if path is None:
+        path = './fortran/data/src'
+    
+    if resolution == 0.25:
+        mask = read_surface('mask_glbl_qrtd.dat', resolution,
+                            path)
+        surface = surface + mask
+        return surface
+    elif resolution == 0.5:
+        mask = read_surface('mask_glbl_hlfd.dat', resolution,
+                            path)
+        surface = surface + mask
+        return surface
+    else:
+        print("Mask with correct resolution not found.")
 
 
 def calc_residual(arr1, arr2):

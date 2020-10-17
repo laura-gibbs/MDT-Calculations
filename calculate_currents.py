@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from read_data import read_surface, write_surface
+from read_data import read_surface, write_surface, apply_mask
 from utils import define_dims, create_coords, bound_arr
 
 r = 6371229.0
@@ -49,12 +49,11 @@ def calc_currents(resolution, mdt):
 
 
 def grid_square_area(resolution, latitude):
-    II, JJ = define_dims(resolution)
+    _, JJ = define_dims(resolution)
     lats = np.deg2rad(resolution)
-    longitude, latitude = create_coords(resolution)
-    glat_rad = np.deg2rad(latitude)
-    ds = np.array([(r ** 2 * lats) * (math.sin(glat_rad[j]) -
-                  math.sin(glat_rad[j-1])) for j in range(JJ)])
+    _, latitude = create_coords(resolution, rads=True)
+    ds = np.array([(r ** 2 * lats) * (math.sin(latitude[j]) -
+                  math.sin(latitude[j-1])) for j in range(JJ)])
 
     # ds = np.array([0.5 * (r * lats) ** 2 * (math.cos(glat_rad[j]) +
     #              math.cos(glat_rad[j-1])) for j in range(JJ)])
@@ -92,6 +91,9 @@ def sum_mdt_ds(mdt, ds):
 
 
 def calc_mean(mdt, ds):
+    print(ds)
+    print(sum_mdt_ds(mdt, ds))
+    print(calc_ocean_area(mdt, ds))
     return sum_mdt_ds(mdt, ds) / calc_ocean_area(mdt, ds)
 
 
@@ -109,16 +111,14 @@ def centralise_mdt(resolution, mdt):
     return mdt
 
 
-def apply_mask(resolution, surface, mask_filename=None, path=None):
-    if mask_filename is None and path is None:
-        mask = read_surface('mask_glbl_qrtd.dat', resolution,
-                            './fortran/data/src', True,
-                            False)
-    else:
-        mask = read_surface(mask_filename, resolution, path, True,
-                            False)
-    surface = surface + mask
-    return surface
+# def apply_mask(resolution, surface, mask_filename=None, path=None):
+#     if mask_filename is None and path is None:
+#         mask = read_surface('mask_glbl_qrtd.dat', resolution,
+#                             './fortran/data/src', transpose=False)
+#     else:
+#         mask = read_surface(mask_filename, resolution, path, transpose=False)
+#     surface = surface + mask
+#     return surface
 
 
 def fn_name(resolution, surface_path, surface_filename):
@@ -127,14 +127,14 @@ def fn_name(resolution, surface_path, surface_filename):
             read_surface(
                 surface_filename,
                 resolution,
-                surface_path,
-                True,
-                False
+                surface_path
             ))
 
     currents, u, v = calc_currents(resolution, gmdt)
     currents = apply_mask(resolution, currents)
+    print(gmdt.min(), gmdt.max(), gmdt.mean())
     mdt = centralise_mdt(resolution, gmdt)
+    print(mdt.min(), mdt.max(), mdt.mean())
     return mdt, currents
 
 
