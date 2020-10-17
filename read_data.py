@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from utils import define_dims
 
 
 def parse_res(filename):
