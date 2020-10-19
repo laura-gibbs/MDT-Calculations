@@ -19,17 +19,18 @@ def main():
     res = 0.25
     II, JJ = define_dims(res)
     
-    path1='./data/src/'
-    path2='./data/res/'
-    pathout='./data/res/'
+    path1 = './data/src/'
+    path2 = './data/res/'
+    cmippath = './cmip5/rcp45/'
+    pathout = './data/res/'
 
-    mss = read_surface('dtu15.dat', res, path1)
-    geoid = read_surface('gtim5.dat', res, path1, nans=False)
-    mdt = calculate_mdt(mss, geoid)
+    rcp45_mdt = read_surface('cmip5_rcp45_mdts_yr5.dat', res, cmippath)
+    # geoid = read_surface('gtim5.dat', res, path1, nans=False)
+    # mdt = calculate_mdt(mss, geoid)
     # calculate_mdt(apply_mask(res, mss, geoid))
-    mdt = bound_arr(mdt.T, -1.5, 1.5)
-    print(mdt)
-    plt.plot(mdt)
+    rcp45_mdt = bound_arr(rcp45_mdt.T, -1.5, 1.5)
+    print(rcp45_mdt)
+    plt.plot(rcp45_mdt)
     plt.show()
 
 
