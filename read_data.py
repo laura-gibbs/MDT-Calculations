@@ -28,7 +28,7 @@ def parse_mdt(filename):
 def read_surface(filename, resolution=None, path=None, fortran=True,
                  nans=True, transpose=False):
     r"""Reshapes surface from 1d array into an array of
-    (JJ, II) records.
+    (II, JJ) records.
 
     Ignores the header and footer of each record.
 
