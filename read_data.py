@@ -27,8 +27,8 @@ def parse_mdt(filename):
         return False
 
 
-def read_surface(filename, resolution=None, path=None, fortran=True,
-                 nans=True, transpose=False):
+def read_surface(filename, path=None, fortran=True, nans=True,
+                 transpose=False):
     r"""Reshapes surface from 1d array into an array of
     (II, JJ) records.
 
@@ -41,12 +41,6 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
     Returns:
         np.array: data of size (II, JJ)
     """
-    if resolution is None:
-        resolution = parse_res(filename)
-
-    II, JJ = define_dims(resolution)
-    print(II, JJ, resolution)
-
     if path is None:
         path = ""
 
@@ -54,7 +48,8 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
     fid = open(filepath, mode='rb')
     buffer = fid.read(4)
     size = np.frombuffer(buffer, dtype=np.int32)[0]
-    print("Size of mdt file = ", size)
+    shape = (int(math.sqrt(size//8)*2), int(math.sqrt(size//8)))
+    fid.seek(0)
 
     # Loads Fortran array (CxR) or Python array (RxC)
     if fortran:
@@ -62,13 +57,13 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
         # Ignores the header and footer
         floats = floats[1:len(floats)-1]
         floats = np.array(floats)
-        floats = np.reshape(floats, (II, JJ), order='F')
+        floats = np.reshape(floats, shape, order='F')
 
     else:
         floats = np.frombuffer(fid.read(), dtype=np.float32)
         floats = floats[1:len(floats)-1]
         floats = np.asarray(floats)
-        floats = np.reshape(floats, (II, JJ))
+        floats = np.reshape(floats, shape)
 
     if nans:
         floats[floats <= -1.7e7] = np.nan
@@ -160,13 +155,11 @@ def apply_mask(resolution, surface, mask_filename=None, path=None):
         path = './fortran/data/src'
     
     if resolution == 0.25:
-        mask = read_surface('mask_glbl_qrtd.dat', resolution,
-                            path)
+        mask = read_surface('mask_glbl_qrtd.dat', path)
         surface = surface + mask
         return surface
     elif resolution == 0.5:
-        mask = read_surface('mask_glbl_hlfd.dat', resolution,
-                            path)
+        mask = read_surface('mask_glbl_hlfd.dat', path)
         surface = surface + mask
         return surface
     else:

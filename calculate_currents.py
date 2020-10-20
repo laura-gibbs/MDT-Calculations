@@ -91,9 +91,9 @@ def sum_mdt_ds(mdt, ds):
 
 
 def calc_mean(mdt, ds):
-    print(ds)
-    print(sum_mdt_ds(mdt, ds))
-    print(calc_ocean_area(mdt, ds))
+    # print(ds)
+    # print(sum_mdt_ds(mdt, ds))
+    # print(calc_ocean_area(mdt, ds))
     return sum_mdt_ds(mdt, ds) / calc_ocean_area(mdt, ds)
 
 
@@ -111,43 +111,31 @@ def centralise_mdt(resolution, mdt):
     return mdt
 
 
-# def apply_mask(resolution, surface, mask_filename=None, path=None):
-#     if mask_filename is None and path is None:
-#         mask = read_surface('mask_glbl_qrtd.dat', resolution,
-#                             './fortran/data/src', transpose=False)
-#     else:
-#         mask = read_surface(mask_filename, resolution, path, transpose=False)
-#     surface = surface + mask
-#     return surface
-
-
-def fn_name(resolution, surface_path, surface_filename):
+def fn_name(resolution, surface_filename, surface_path):
     gmdt = apply_mask(
             resolution,
             read_surface(
                 surface_filename,
-                resolution,
                 surface_path
             ))
 
     currents, u, v = calc_currents(resolution, gmdt)
     currents = apply_mask(resolution, currents)
-    print(gmdt.min(), gmdt.max(), gmdt.mean())
+    # print(gmdt.min(), gmdt.max(), gmdt.mean())
     mdt = centralise_mdt(resolution, gmdt)
-    print(mdt.min(), mdt.max(), mdt.mean())
+    # print(mdt.min(), mdt.max(), mdt.mean())
     return mdt, currents
 
 
 def main():
     res = 0.25
-    # II, JJ = define_dims(res)
 
     # path0 = './fortran/data/src'
     path1 = './fortran/data/res'
     # path2 = './fortran/data/test'
     mdt_filename = 'shmdtfile.dat'
 
-    mdt, cs = fn_name(res, path1, mdt_filename)
+    mdt, cs = fn_name(res, mdt_filename, path1)
 
     # gmdt = apply_mask(res, read_surface(mdt_filename, resolution=res,
     #                   path=path1, nans=True, transpose=False))
@@ -163,7 +151,7 @@ def main():
     # mn = calc_mean(mdt, ds)
     # # print(calc_ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
     # mdt = centralise_data(mdt, mn)
-    
+
     mdt = bound_arr(mdt.T, -1.5, 1.5)
     cs = bound_arr(cs.T, -1.5, 1.5)
     fig, (ax1, ax2) = plt.subplots(1, 2)
