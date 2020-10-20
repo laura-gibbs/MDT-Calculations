@@ -1,6 +1,8 @@
 import os
 import numpy as np
 from utils import define_dims
+import math
+
 
 def parse_res(filename):
     for letter in range(len(filename)):
@@ -50,6 +52,9 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
 
     filepath = os.path.join(os.path.normpath(path), filename)
     fid = open(filepath, mode='rb')
+    buffer = fid.read(4)
+    size = np.frombuffer(buffer, dtype=np.int32)[0]
+    print("Size of mdt file = ", size)
 
     # Loads Fortran array (CxR) or Python array (RxC)
     if fortran:
@@ -71,6 +76,46 @@ def read_surface(filename, resolution=None, path=None, fortran=True,
         return floats.T
 
     return floats
+
+
+def read_surfaces(filename, path=None, fortran=True, nans=True,
+                  transpose=False):
+    r"""
+    """
+    if path is None:
+        path = ""
+
+    filepath = os.path.join(os.path.normpath(path), filename)
+    fid = open(filepath, mode='rb')
+    mdts = []
+    buffer = fid.read(4)
+    size = np.frombuffer(buffer, dtype=np.int32)[0]
+    shape = (int(math.sqrt(size//8)*2), int(math.sqrt(size//8)))
+
+    # Loads Fortran array (CxR) or Python array (RxC)
+    if fortran:
+        while buffer != b'':
+            floats = np.asfortranarray(np.frombuffer(fid.read(size),
+                                       dtype=np.float32))
+            floats = np.array(floats)
+            floats = np.reshape(floats, shape, order='F')
+            mdts.append(floats)
+            print(f'Loaded MDT #{len(mdts)}')
+            footer_value = np.frombuffer(fid.read(4), dtype=np.int32)[0]
+            buffer = fid.read(4)
+    else:
+        floats = np.frombuffer(fid.read(), dtype=np.float32)
+        floats = floats[1:len(floats)-1]
+        floats = np.asarray(floats)
+        floats = np.reshape(floats, shape)
+
+    mdts = np.array(mdts)
+    if nans:
+        mdts[mdts <= -1.7e7] = np.nan
+    if transpose:
+        return np.transpose(mdts, (0, 2, 1))
+
+    return mdts
 
 
 def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
