@@ -12,30 +12,6 @@ from matplotlib import cm
 from utils import define_dims, create_coords
 
 
-# def define_coords(res):
-#     r"""Creates a grid of lon and lat coordinates.
-
-#     Args:
-#         res (float): resolution.
-
-#     Returns:
-#         lon (np.array): lon coordinates (x axis).
-#         lat (np.array): lat coordinates (y axis).
-#     """
-#     II, JJ = define_dims(res)
-#     lns, lts = res, res
-
-#     lon = np.zeros(II)
-#     lat = np.zeros(JJ)
-#     for i in range(II):
-#         lon[i] = round(lns*(i+0.5), 2)
-
-#     for j in range(JJ):
-#         lat[j] = round(lts*(j-0.5) - 90.0, 2)
-
-#     return lon, lat
-
-
 def cbar_fmt(x, pos):
     r"""Colorbar function, formats colorbar labels to include units 'm'.
 
