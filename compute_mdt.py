@@ -21,7 +21,7 @@ def main():
     # pathout = './data/res/'
     cmippath = './cmip5/rcp60/'
 
-    rcp60_mdts = read_surfaces('cmip5_rcp60_mdts_yr5.dat', cmippath)
+    rcp60_mdts = read_surfaces('cmip5_rcp60_mdts_yr5.dat', cmippath, number=3, start=0)
     example_mdt = bound_arr(rcp60_mdts[0].T, -1.5, 1.5)
     plt.imshow(example_mdt)
     plt.show()
