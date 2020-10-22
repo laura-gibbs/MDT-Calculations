@@ -85,18 +85,17 @@ def read_surfaces(filename, path=None, fortran=True, nans=True,
     hdr_pointer = (shape[0]*shape[1]+2)*4
     if start is not None:
         fid.seek(start*hdr_pointer)
-    
+
     # Loads Fortran array (CxR) or Python array (RxC)
     while buffer != b'' and len(mdts) <= number-1:
         floats = np.array(np.frombuffer(fid.read(size),
                                         dtype=np.float32), order=order)
         floats = np.reshape(floats, shape, order=order)
         mdts.append(floats)
-        print(f'Loaded MDT #{start}')
+        print(f'Loaded MDT #{(start+len(mdts))}')
         footer_value = np.frombuffer(fid.read(4), dtype=np.int32)[0]
         buffer = fid.read(4)
-        start += 1
-    
+
     mdts = np.array(mdts)
     if nans:
         mdts[mdts <= -1.7e7] = np.nan
