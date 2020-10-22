@@ -41,6 +41,8 @@ def read_surface(filename, path=None, fortran=True, nans=True,
     Returns:
         np.array: data of size (II, JJ)
     """
+    order = 'F' if fortran else 'C'
+
     if path is None:
         path = ""
 
@@ -52,18 +54,9 @@ def read_surface(filename, path=None, fortran=True, nans=True,
     fid.seek(0)
 
     # Loads Fortran array (CxR) or Python array (RxC)
-    if fortran:
-        floats = np.asfortranarray(np.frombuffer(fid.read(), dtype=np.float32))
-        # Ignores the header and footer
-        floats = floats[1:len(floats)-1]
-        floats = np.array(floats)
-        floats = np.reshape(floats, shape, order='F')
-
-    else:
-        floats = np.frombuffer(fid.read(), dtype=np.float32)
-        floats = floats[1:len(floats)-1]
-        floats = np.asarray(floats)
-        floats = np.reshape(floats, shape)
+    floats = np.array(np.frombuffer(fid.read(), dtype=np.float32), order=order)
+    floats = floats[1:len(floats)-1]
+    floats = np.reshape(floats, shape, order=order)
 
     if nans:
         floats[floats <= -1.7e7] = np.nan
@@ -74,9 +67,11 @@ def read_surface(filename, path=None, fortran=True, nans=True,
 
 
 def read_surfaces(filename, path=None, fortran=True, nans=True,
-                  transpose=False):
+                  transpose=False, number=None):
     r"""
     """
+    order = 'F' if fortran else 'C'
+
     if path is None:
         path = ""
 
@@ -86,23 +81,16 @@ def read_surfaces(filename, path=None, fortran=True, nans=True,
     buffer = fid.read(4)
     size = np.frombuffer(buffer, dtype=np.int32)[0]
     shape = (int(math.sqrt(size//8)*2), int(math.sqrt(size//8)))
-
+    fid.tell()
     # Loads Fortran array (CxR) or Python array (RxC)
-    if fortran:
-        while buffer != b'':
-            floats = np.asfortranarray(np.frombuffer(fid.read(size),
-                                       dtype=np.float32))
-            floats = np.array(floats)
-            floats = np.reshape(floats, shape, order='F')
-            mdts.append(floats)
-            print(f'Loaded MDT #{len(mdts)}')
-            footer_value = np.frombuffer(fid.read(4), dtype=np.int32)[0]
-            buffer = fid.read(4)
-    else:
-        floats = np.frombuffer(fid.read(), dtype=np.float32)
-        floats = floats[1:len(floats)-1]
-        floats = np.asarray(floats)
-        floats = np.reshape(floats, shape)
+    while buffer != b'':
+        floats = np.array(np.frombuffer(fid.read(size),
+                                        dtype=np.float32), order=order)
+        floats = np.reshape(floats, shape, order=order)
+        mdts.append(floats)
+        print(f'Loaded MDT #{len(mdts)}')
+        footer_value = np.frombuffer(fid.read(4), dtype=np.int32)[0]
+        buffer = fid.read(4)
 
     mdts = np.array(mdts)
     if nans:
@@ -117,6 +105,8 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
                   overwrite=False):
     r"""
     """
+    order = 'F' if fortran else 'C'
+ 
     if path is None:
         path = ""
     filepath = os.path.join(path, filename)
@@ -127,10 +117,7 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
     if filepath[len(filepath)-4:] != '.dat':
         filepath += '.dat'
 
-    if fortran:
-        floats = arr.flatten(order='F')
-    else:
-        floats = arr.flatten()
+    floats = arr.flatten(order=order)
 
     if nan_mask is not None:
         floats = floats * nan_mask
