@@ -17,8 +17,8 @@ omega = 7.292115e-5        # Rotation rate
 # integer  :: NN_mss,NN_egm,NN,rr
 
 
-pin = ".\\data\\src\\"
-pout = ".\\data\\res\\"
+pin = "..\\data\\src\\"
+pout = "..\\data\\res\\"
 
 
 f = open("parameters.txt", 'r')

@@ -1,6 +1,6 @@
 dtu15               - name of mss
 2190                - max d/o of mss 
-gtim5               - name of gravity model
+geco                - name of gravity model
 280                 - max d/o of gravity model
 free                - tide system of gravity model
 4                   - reciprocal of resolution of required MDT     

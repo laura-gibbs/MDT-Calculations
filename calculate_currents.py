@@ -1,8 +1,11 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from read_data import read_surface, write_surface, apply_mask
+from read_data import read_surface, write_surface, apply_mask, read_surfaces
 from utils import define_dims, create_coords, bound_arr
+import turbo_colormap_mpl
+import scipy.misc
+from scipy import ndimage
 
 r = 6371229.0
 omega = 7.29e-5
@@ -35,6 +38,7 @@ def calc_currents(resolution, mdt):
 
     # Compute currents
     print(f'mdt.shape={mdt.shape}')
+    print(II, JJ-1)
     for j in range(1, JJ-1):
         for i in range(II):
             if not np.isnan(mdt[i, j]) and not np.isnan(mdt[i, j-1]):
@@ -128,12 +132,16 @@ def fn_name(resolution, surface_filename, surface_path):
 
 
 def main():
-    res = 0.25
+    res = 1 / 12
 
-    # path0 = './fortran/data/src'
     path1 = './fortran/data/res'
-    # path2 = './fortran/data/test'
-    mdt_filename = 'shmdtfile.dat'
+    cmippath = './cmip5/rcp60/'
+
+    # rcp60_mdts = read_surfaces('cmip5_rcp60_mdts_yr5.dat', cmippath, number=3,
+    #                            start=100)
+    # rcp60_cs, u, v = calc_currents(res, rcp60_mdts[0])
+
+    mdt_filename = 'orca0083_mdt_12th.dat'
 
     mdt, cs = fn_name(res, mdt_filename, path1)
 
@@ -153,10 +161,14 @@ def main():
     # mdt = centralise_data(mdt, mn)
 
     mdt = bound_arr(mdt.T, -1.5, 1.5)
-    cs = bound_arr(cs.T, -1.5, 1.5)
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.imshow(mdt)
-    ax2.imshow(cs)
+    mdt = np.flip(mdt, 0)
+    cs = bound_arr(cs.T, -1, 1)
+    cs = np.flip(cs, 0)
+    # cs = ndimage.rotate(cs, 180)
+    # fig, (ax1, ax2) = plt.subplots(1, 2)
+    # ax1.imshow(rcp60_mdt)
+    # ax2.imshow(rcp60_cs)
+    plt.imshow(cs, cmap='turbo')
     plt.show()
 
     # write_surface(path2, 'tmp.dat', gmdt)

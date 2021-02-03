@@ -1,8 +1,8 @@
 import numpy as np
 
 tide_out = 'mean'
-pin='./data/src/'
-pout='./data/res/'
+pin='../data/src/'
+pout='../data/res/'
 
 a = 6378137.0               # Equatorial raidus (m)
 f = 1.0 / 298.257202101     # Recipricol of flattening

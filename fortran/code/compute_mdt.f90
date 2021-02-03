@@ -47,7 +47,7 @@
 !-------------------------------------------------
       pin1='./data/src/'
       pin2='./data/res/'
-      pout='./data/res/'
+      pout='./data/test/'
 !-------------------------------------------------
 
 !     Read in the mdt parameter file
@@ -128,6 +128,7 @@
       close(20)
 
       fin='mask_rr'//rr_str//'.dat'
+      ! fin='landmask8.dat'
       inquire(file=trim(pin1)//trim(fin),exist=msk_exists)
       if(msk_exists)then
          open(20,file=trim(pin1)//trim(fin),&

@@ -50,6 +50,7 @@ def read_surface(filename, path=None, fortran=True, nans=True,
     fid = open(filepath, mode='rb')
     buffer = fid.read(4)
     size = np.frombuffer(buffer, dtype=np.int32)[0]
+    print('size = ', size)
     shape = (int(math.sqrt(size//8)*2), int(math.sqrt(size//8)))
     fid.seek(0)
 
@@ -155,6 +156,7 @@ def apply_mask(resolution, surface, mask_filename=None, path=None):
         return surface
     else:
         print("Mask with correct resolution not found.")
+        return surface
 
 
 def calc_residual(arr1, arr2):
