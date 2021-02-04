@@ -1,10 +1,10 @@
       implicit none
       
       ! integer, parameter :: i1=680,i2=801,j1=628,j2=657
-      integer, parameter :: i1=1,i2=1440,j1=1,j2=720
+      integer, parameter :: i1=1,i2=2880,j1=1,j2=1440
       integer, parameter :: II=i2-i1+1 !=122
       integer, parameter :: JJ=j2-j1+1 !=30
-      integer, parameter :: IIin=1440,JJin=720
+      integer, parameter :: IIin=2880,JJin=1440
 
       integer :: i,j,n
       real    :: gmdt(IIin,JJin),tmp(IIin,JJin),mask(IIin,JJin)
@@ -22,24 +22,24 @@
       ! path1='~/home/data/RDSF/sync/data/analysis/mdt/mdts_by_deg/geodetic/DTU13/'
       ! path2='./data/'
 
-      path0='./data/src/'
-      path1='./data/res/'
-      path2='./data/'
+      path0='./../a_mdt_data/computations/masks/'
+      path1='./../a_mdt_data/computations/mdts/'
+      path2='./../a_mdt_data/computations/currents/'
 
 !    Define global lon and lat
 !------------------------------------------------
      do i=1,IIin
-        glon(i)=0.25*(i-0.5)
+        glon(i)=0.125*(i-0.5)
      end do
 
      do j=1,JJin
-        glat(j)=0.25*(j-0.5)-90.0
+        glat(j)=0.125*(j-0.5)-90.0
      end do
 !------------------------------------------------
 
 !-------------------------------------------------
       ! open(21,file=trim(path1)//'GTIM5/qrt/sh_mdt_GTIM5_L240.dat',form='unformatted')
-      open(21,file=trim(path1)//'shmdtfile.dat',form='unformatted')
+      open(21,file=trim(path1)//'mdtcs.dat',form='unformatted')
       !open(21,file=trim(path1)//'EGM2008/qrt/sh_mdt_EGM2008_L300.dat',&&form='unformatted')
       read(21)gmdt
       close(21)
@@ -56,15 +56,15 @@
 !-------------------------------------------------
 
 !-------------------------------------------------
-!       tmp(1:720,:)=gmdt(721:IIin,:)
-!       tmp(721:IIin,:)=gmdt(1:720,:)
+!       tmp(1:1440,:)=gmdt(721:IIin,:)
+!       tmp(721:IIin,:)=gmdt(1:1440,:)
 !       gmdt(:,:)=tmp(:,:)
       mdt(:,:)=gmdt(i1:i2,j1:j2)
 ! !-------------------------------------------------
 
 ! !-------------------------------------------------
-!       tmp(1:720,:)=gcs(721:IIin,:)
-!       tmp(721:IIin,:)=gcs(1:720,:)
+!       tmp(1:1440,:)=gcs(721:IIin,:)
+!       tmp(721:IIin,:)=gcs(1:1440,:)
 !       gcs(:,:)=tmp(:,:)
       cs(:,:)=gcs(i1:i2,j1:j2)
 !-------------------------------------------------
@@ -77,8 +77,8 @@
 
       torad = atan(1.0)/45.0
 
-      lat0=-89.875*torad
-      lats=0.25*torad
+      lat0=-89.9375*torad
+      lats=0.125*torad
 
       do j=1,JJ
          lat(j) = lat0+(j-1)*lats
@@ -131,9 +131,9 @@
 
       !open(30,file=trim(path_gmt)//'/shmdt_cm.ascii',form='formatted') 
       !do j=1,JJin
-      !   lt=0.25*(j-1)-89.875
+      !   lt=0.125*(j-1)-89.875
       !   do i=1,IIin
-      !      ln=0.25*(i-1)+0.125
+      !      ln=0.125*(i-1)+0.125
       !      write(30,*)ln,lt,data(i,j)*100.0 !m->cm
       !   end do
       !end do
