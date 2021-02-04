@@ -1,8 +1,8 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from read_data import read_surface, write_surface, apply_mask, read_surfaces
-from utils import define_dims, create_coords, bound_arr
+from dat import read_surface, write_surface, read_surfaces
+from utils import define_dims, create_coords, bound_arr, apply_mask
 import turbo_colormap_mpl
 import scipy.misc
 from scipy import ndimage
@@ -160,8 +160,8 @@ def main():
     # # print(calc_ocean_area(mdt, ds), sum_mdt_ds(mdt, ds), mn)
     # mdt = centralise_data(mdt, mn)
 
-    mdt = bound_arr(mdt.T, -1.5, 1.5)
-    mdt = np.flip(mdt, 0)
+    # mdt = bound_arr(mdt.T, -1.5, 1.5)
+    # mdt = np.flip(mdt, 0)
     cs = bound_arr(cs.T, -1, 1)
     cs = np.flip(cs, 0)
     # cs = ndimage.rotate(cs, 180)

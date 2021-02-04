@@ -3,9 +3,11 @@
 *.gz
 *.png
 *.exe
+*.eps
 
 
 .vscode/
 __pycache__/
 Experiments/
 projection_experiments.py
+figs/

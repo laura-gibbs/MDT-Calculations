@@ -1,10 +1,10 @@
       implicit none
       
       ! integer, parameter :: i1=680,i2=801,j1=628,j2=657
-      integer, parameter :: i1=1,i2=1440,j1=1,j2=720
+      integer, parameter :: i1=1,i2=2880,j1=1,j2=1440
       integer, parameter :: II=i2-i1+1 !=122
       integer, parameter :: JJ=j2-j1+1 !=30
-      integer, parameter :: IIin=1440,JJin=720
+      integer, parameter :: IIin=2880,JJin=1440
 
       integer :: i,j,n
       real    :: gmdt(IIin,JJin),tmp(IIin,JJin),mask(IIin,JJin)
@@ -29,11 +29,11 @@
 !    Define global lon and lat
 !------------------------------------------------
      do i=1,IIin
-        glon(i)=0.25*(i-0.5)
+        glon(i)=0.125*(i-0.5)
      end do
 
      do j=1,JJin
-        glat(j)=0.25*(j-0.5)-90.0
+        glat(j)=0.125*(j-0.5)-90.0
      end do
 !------------------------------------------------
 
@@ -47,7 +47,7 @@
       
 
       ! open(21,file=trim(path0)//'masks/mask_glbl_qrtd.dat',form='unformatted')
-      open(21,file=trim(path0)//'mask_rr0004.dat',form='unformatted')
+      open(21,file=trim(path0)//'mask_rr0008.dat',form='unformatted')
       read(21)mask
       close(21)
   
@@ -77,8 +77,8 @@
 
       torad = atan(1.0)/45.0
 
-      lat0=-89.875*torad
-      lats=0.25*torad
+      lat0=-89.9375*torad
+      lats=0.125*torad
 
       do j=1,JJ
          lat(j) = lat0+(j-1)*lats

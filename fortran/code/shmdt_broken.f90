@@ -47,7 +47,7 @@
       
 
       ! open(21,file=trim(path0)//'masks/mask_glbl_qrtd.dat',form='unformatted')
-      open(21,file=trim(path0)//'mask_rr0004.dat',form='unformatted')
+      open(21,file=trim(path0)//'mask_rr0008.dat',form='unformatted')
       read(21)mask
       close(21)
   

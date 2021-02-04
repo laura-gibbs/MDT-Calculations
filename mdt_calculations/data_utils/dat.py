@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from utils import define_dims
 import math
 
 
@@ -28,7 +27,7 @@ def parse_mdt(filename):
 
 
 def read_surface(filename, path=None, fortran=True, nans=True,
-                 transpose=False):
+                 transpose=True):
     r"""Reshapes surface from 1d array into an array of
     (II, JJ) records.
 
@@ -50,7 +49,6 @@ def read_surface(filename, path=None, fortran=True, nans=True,
     fid = open(filepath, mode='rb')
     buffer = fid.read(4)
     size = np.frombuffer(buffer, dtype=np.int32)[0]
-    print('size = ', size)
     shape = (int(math.sqrt(size//8)*2), int(math.sqrt(size//8)))
     fid.seek(0)
 
@@ -68,7 +66,7 @@ def read_surface(filename, path=None, fortran=True, nans=True,
 
 
 def read_surfaces(filename, path=None, fortran=True, nans=True,
-                  transpose=False, number=None, start=None):
+                  transpose=False, number=1, start=None):
     r"""
     """
     order = 'F' if fortran else 'C'
@@ -76,9 +74,9 @@ def read_surfaces(filename, path=None, fortran=True, nans=True,
     if path is None:
         path = ""
 
+    arr = []
     filepath = os.path.join(os.path.normpath(path), filename)
     fid = open(filepath, mode='rb')
-    mdts = []
     buffer = fid.read(4)
     size = np.frombuffer(buffer, dtype=np.int32)[0]
     shape = (int(math.sqrt(size//8)*2), int(math.sqrt(size//8)))
@@ -88,22 +86,22 @@ def read_surfaces(filename, path=None, fortran=True, nans=True,
         fid.seek(start*hdr_pointer)
 
     # Loads Fortran array (CxR) or Python array (RxC)
-    while buffer != b'' and len(mdts) <= number-1:
+    while buffer != b'' and len(arr) <= number-1:
         floats = np.array(np.frombuffer(fid.read(size),
                                         dtype=np.float32), order=order)
         floats = np.reshape(floats, shape, order=order)
-        mdts.append(floats)
-        print(f'Loaded MDT #{(start+len(mdts))}')
+        arr.append(floats)
+        print(f'Loaded MDT #{(start+len(arr))}')
         footer_value = np.frombuffer(fid.read(4), dtype=np.int32)[0]
         buffer = fid.read(4)
 
-    mdts = np.array(mdts)
+    arr = np.array(arr)
     if nans:
-        mdts[mdts <= -1.7e7] = np.nan
+        arr[arr <= -1.7e7] = np.nan
     if transpose:
-        return np.transpose(mdts, (0, 2, 1))
+        return np.transpose(arr, (0, 2, 1))
 
-    return mdts
+    return arr
 
 
 def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
@@ -129,6 +127,7 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
     floats[np.isnan(floats)] = -1.9e+19
 
     # Calculate header (number of total bytes in MDT)
+    print('array size = ', floats.size)
     header = np.array(arr.size * 4)
 
     # Convert everything to bytes and write
@@ -140,47 +139,6 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
     fid.write(floats)
     fid.write(footer)
     fid.close()
-
-
-def apply_mask(resolution, surface, mask_filename=None, path=None):
-    if path is None:
-        path = './fortran/data/src'
-    
-    if resolution == 0.25:
-        mask = read_surface('mask_glbl_qrtd.dat', path)
-        surface = surface + mask
-        return surface
-    elif resolution == 0.5:
-        mask = read_surface('mask_glbl_hlfd.dat', path)
-        surface = surface + mask
-        return surface
-    else:
-        print("Mask with correct resolution not found.")
-        return surface
-
-
-def calc_residual(arr1, arr2):
-    r""" Calculates the residual between two surfaces.
-
-    Checks whether input arrays have the same dimensions.
-
-    Args:
-        arr1 (np.array): surface 1.
-        arr2 (np.array): surface 2.
-
-    Returns:
-        np.array: An array representing the residual surface
-            i.e. the difference between the input surfaces.
-    """
-    if np.shape(arr1) == np.shape(arr2):
-        return np.subtract(arr1, arr2)
-    else:
-        return print("Cannot compute residual: surfaces are not same shape")
-
-
-# def batch_reshape():
-#     for filename in filenames:
-#         reshape_data(filename, parse_res(filename), mdt=)
 
 
 def main():
