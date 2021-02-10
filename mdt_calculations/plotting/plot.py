@@ -7,8 +7,10 @@ import numpy as np
 
 
 def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
-         land_feature=False, title=None, product='mdt', extent=None):
-    lons, lats = create_coords(get_res(arr), central_lon=central_lon)
+         land_feature=False, title=None, product='mdt', extent=None,
+         lats=None, lons=None):
+    if lats is None and lons is None:
+        lons, lats = create_coords(get_res(arr), central_lon=central_lon)
     crs = ccrs.PlateCarree(central_longitude=central_lon)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection=crs)
@@ -68,7 +70,8 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
         plt.gcf().text(0.8855, 0.858, 'm', fontsize=14)
     if product == 'cs':
         plt.gcf().text(0.882, 0.858, 'm/s', fontsize=14)
-    plt.show()
+    # plt.show()
+    return fig
 
 
 def main():

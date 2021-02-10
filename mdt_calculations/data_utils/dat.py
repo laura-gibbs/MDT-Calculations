@@ -120,6 +120,7 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
     if filepath[len(filepath)-4:] != '.dat':
         filepath += '.dat'
 
+    arr = arr.astype('float32')
     floats = arr.flatten(order=order)
 
     if nan_mask is not None:
