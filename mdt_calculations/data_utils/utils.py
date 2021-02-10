@@ -72,3 +72,10 @@ def calc_residual(arr1, arr2):
         return np.subtract(arr1, arr2)
     else:
         return print("Cannot compute residual: surfaces are not same shape")
+
+
+def convert_centra_lon(arr):
+    mp = min(arr.shape[0], arr.shape[1])
+    left = arr[:, :mp]
+    right = arr[:, mp:]
+    return np.concatenate((right, left), axis=1)
