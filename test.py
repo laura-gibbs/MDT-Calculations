@@ -135,7 +135,7 @@ def main():
         write_surface('cmip_calcs/model_means/'+model+'_mean', mean.T)
         print("mean shape", mean.shape)
 
-    
+    # test push
 
 if __name__ == '__main__':
     main()
