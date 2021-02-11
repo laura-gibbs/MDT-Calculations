@@ -6,6 +6,61 @@ import numpy as np
 import os
 
 
+def calc_mean(fname="cmip5_historical_mdts_yr5_meta.txt", path='../a_mdt_data/datasets/cmip5/historical/', fig_dir='figs/cmip/model_means/',
+              dat_dir='cmip_calcs/model_means/', mean_per='model'):
+    filepath = os.path.join(os.path.normpath(path), fname)
+    f = open(filepath, "r")
+    f.readline() # ignore header
+    params = []
+    for line in f.read().splitlines():
+        params.append(line.split())
+
+    means = []
+    if mean_per == "model":
+        models = np.array(params[:,0])
+        model_starts = []
+        model_names = []
+        for i, model in enumerate(models):
+            if model not in model_names:
+                model_starts.append(i)
+                model_names.append(model)
+        print(model_starts, model_names)
+
+        for start, end in zip(model_starts[:-1], model_starts[1:]):
+            model = models_ens[start][0]
+            ensemble = models_ens[start][1]
+            batch_size = end - start
+            batch = read_surfaces(fname, path, number=batch_size, start=start)
+            mean = np.mean(batch, axis=(0))
+            means.append(mean)
+            fig = plot(mean.T)
+            fig.set_size_inches((20, 10.25))
+            fig.savefig(fig_dir+model+'_mean', dpi=300)
+            write_surface(dat_dir+model+'_mean', mean.T)
+            print("mean shape", mean.shape)
+
+    elif mean_per == "ensemble":
+        ensemble_starts = [0]
+        prev = 0
+        for i, year in enumerate(params[:,2]):
+            if int(year) < prev:
+                ensemble_starts.append(i)
+            prev = int(year)
+
+        for i, start in enumerate(ensemble_starts[:-1]):
+            batch_size = ensemble_starts[i+1] - ensemble_starts[i]
+            model = params[:,0][start]
+            ensemble = params[:,1][start]
+            batch = read_surfaces(fname, path, number=batch_size, start=start)
+            mean = np.mean(batch, axis=(0))
+            means.append(mean)
+            fig = plot(mean.T)
+            fig.set_size_inches((20, 10.25))
+            fig.savefig(fig_dir+model+'_'+ensemble+'_mean', dpi=300)
+            write_surface(dat_dir+model+'_'+ensemble+'_mean', mean.T)
+            print("mean shape", mean.shape)
+
+
 def main():
     mdts = '../a_mdt_data/computations/mdts/'
     cs = '../a_mdt_data/computations/cs/'
@@ -33,6 +88,9 @@ def main():
  
     # dtu = read_surface('dtu10mdt_1min.dat', path0)
     # plot(dtu_mdt, lats=lats, lons=lons)
+
+    # access1_0 = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=30, start=0)
+    # can_CM4 = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=9, start=341)
 
     file = "cmip5_historical_mdts_yr5_meta.txt"
     filepath = os.path.join(os.path.normpath(historical), file)
@@ -77,18 +135,7 @@ def main():
         write_surface('cmip_calcs/model_means/'+model+'_mean', mean.T)
         print("mean shape", mean.shape)
 
-    # access1_0 = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=30, start=0)
-    # can_CM4 = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=9, start=341)
-
-    # print(access1_0.shape)
-    # mean = np.mean(access1_0, axis=(0))
-    # print(mean.shape)
-    # fig = plot(mean.T)
-    # fig.savefig('bla')
-
-    #git test
     
-
 
 if __name__ == '__main__':
     main()
