@@ -8,18 +8,24 @@ import numpy as np
 
 def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
          land_feature=False, title=None, product='mdt', extent=None,
-         lats=None, lons=None):
+         lats=None, lons=None, low_bd=None, up_bd=None):
     if lats is None and lons is None:
         lons, lats = create_coords(get_res(arr), central_lon=central_lon)
     crs = ccrs.PlateCarree(central_longitude=central_lon)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection=crs)
-    if product == 'mdt':
-        vmin = -bds
-        vmax = bds
-    if product == 'cs':
-        vmin = 0
-        vmax = bds
+    if low_bd and up_bd is not None:
+        vmin = low_bd
+        vmax = up_bd
+    else:
+        if product == 'mdt':
+            vmin = -bds
+            vmax = bds
+        elif product == 'cs':
+            vmin = 0
+            vmax = bds
+
+
     arr = bound_arr(arr, vmin, vmax)
     im = ax.pcolormesh(lons, lats, arr, transform=crs,
                        cmap=cmap, vmin=vmin, vmax=vmax)   
@@ -50,7 +56,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             ticks = np.linspace(vmin, vmax, num=11)
             dp = '{:.2f}'
         else:
-            ticks = np.linspace(vmin, vmax)
+            ticks = np.linspace(vmin, vmax, num=9)
     if product == 'cs':
         if bds == 0.5 and product == 'cs':
             ticks = np.linspace(vmin, vmax, num=6)

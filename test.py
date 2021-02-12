@@ -4,6 +4,7 @@ from mdt_calculations.data_utils.dat import read_surface, read_surfaces, write_s
 from mdt_calculations.computations.wrapper import mdt_wrapper, cs_wrapper
 import numpy as np
 import os
+import matplotlib.pyplot as plt
 
 
 def calc_mean(fname="cmip5_historical_mdts_yr5_meta.txt", path='../a_mdt_data/datasets/cmip5/historical/', fig_dir='figs/cmip/model_means/',
@@ -112,30 +113,64 @@ def main():
             model_names.append(model)
     print(model_starts, model_names)
 
-    start_arr = [0]
-    prev = 0
-    for i, year in enumerate(params[:,2]):
-        if int(year) < prev:
-            start_arr.append(i)
-        prev = int(year)
+    # start_arr = [0]
+    # prev = 0
+    # for i, year in enumerate(params[:,2]):
+    #     if int(year) < prev:
+    #         start_arr.append(i)
+    #     prev = int(year)
+
+    # mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
+    # means = []
+    # for start, end in zip(model_starts[:-1], model_starts[1:]):
+    #     model = models_ens[start][0]
+    #     ensemble = models_ens[start][1]
+    #     print(model, ensemble)
+    #     batch_size = end - start
+    #     batch = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=batch_size, start=start)
+    #     mean = np.mean(batch, axis=(0))
+    #     # mean = mean + mask
+    #     means.append(mean)
+    #     # write_surface('cmip_calcs/model_means_mask/'+model+'_mean', mean)
+    #     # fig = plot(mean)
+    #     # fig.set_size_inches((20, 10.25))
+    #     # fig.savefig('figs/cmip/model_means_mask/'+model+'_mean', dpi=300)
+    #     # print("means len", len(means))
+
+    # means = np.array(means)
+    # print(means.shape)
+    # total_mean = np.nanmean(means, axis=(0))
+    # print(total_mean.shape)
+    # mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
+    # total_mean = total_mean.T
+    # fig = plot(total_mean)
+    # fig.set_size_inches((20, 10.25))
+    # fig.savefig('figs/cmip/cmip5_historical_mean', dpi=300)
+    # write_surface('cmip_calcs/cmip5_historical_mean', total_mean)
 
 
-    means = []
-    for start, end in zip(model_starts[:-1], model_starts[1:]):
-        model = models_ens[start][0]
-        ensemble = models_ens[start][1]
-        print(model, ensemble)
-        batch_size = end - start
-        batch = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=batch_size, start=start)
-        mean = np.mean(batch, axis=(0))
-        means.append(mean)
-        fig = plot(mean.T)
-        fig.set_size_inches((20, 10.25))
-        fig.savefig('figs/cmip/model_means/'+model+'_mean', dpi=300)
-        write_surface('cmip_calcs/model_means/'+model+'_mean', mean.T)
-        print("mean shape", mean.shape)
+    # stds = np.nanstd(means, axis=(1,2))
+    # print(list(zip(model_names, stds)))
 
-    # test push
+    # # plt.boxplot(means.reshape(means.shape[0], means.shape[1] * means.shape[2]), showfliers=False)
+    # # Find MIROC5 index and remove element from model names and stds
+    # outlier = model_names.index('MIROC5')
+    # del(model_names[outlier])
+    # stds = np.delete(stds, outlier)
+    # plt.plot(list(range(42)), stds)
+    # # plt.errorbar()
+    # plt.show()
+
+    mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
+    tbf = read_surface('MIROC5_mean.dat', './cmip_calcs/model_means/')
+    print(np.nanmin(tbf), np.nanmax(tbf))
+    # tbf = tbf + mask
+    print(np.nanmin(tbf), np.nanmax(tbf))
+    fig = plot(tbf, bds=4.5)# low_bd=-1, up_bd=1)
+    fig.set_size_inches((20, 10.25))
+    plt.show()
+
+
 
 if __name__ == '__main__':
     main()
