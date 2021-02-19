@@ -14,9 +14,10 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     crs = ccrs.PlateCarree(central_longitude=central_lon)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection=crs)
-    if low_bd and up_bd is not None:
+    if low_bd is not None and up_bd is not None:
         vmin = low_bd
         vmax = up_bd
+        bds = None
     else:
         if product == 'mdt':
             vmin = -bds
@@ -56,8 +57,9 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             ticks = np.linspace(vmin, vmax, num=11)
             dp = '{:.2f}'
         else:
-            ticks = np.linspace(vmin, vmax, num=9)
-    if product == 'cs':
+            ticks = np.linspace(0.35, 0.8, num=10)
+            dp = '{:.2f}'
+    elif product == 'cs':
         if bds == 0.5 and product == 'cs':
             ticks = np.linspace(vmin, vmax, num=6)
         else:
