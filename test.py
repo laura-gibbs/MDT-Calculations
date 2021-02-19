@@ -120,38 +120,38 @@ def main():
             start_arr.append(i)
         prev = int(year)
 
-    mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
-    means = []
-    for start, end in zip(model_starts[:-1], model_starts[1:]):
-        model = models_ens[start][0]
-        ensemble = models_ens[start][1]
-        print(model, ensemble)
-        batch_size = end - start
-        batch = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=batch_size, start=start)
-        mean = np.mean(batch, axis=(0))
-        # mean = mean + mask
-        means.append(mean)
-        # write_surface('cmip_calcs/model_means_mask/'+model+'_mean', mean)
-        # fig = plot(mean)
-        # fig.set_size_inches((20, 10.25))
-        # fig.savefig('figs/cmip/model_means_mask/'+model+'_mean', dpi=300)
-        # print("means len", len(means))
-
-    means = np.array(means)
-    means[means > 4] = np.nan
-    # print(means.shape)
-    # total_mean = np.nanmean(means, axis=(0))
-    total_std = np.nanstd(means, axis=(0))
-    print(total_std.shape)
-    # print(total_mean.shape)
     # mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
-    # total_mean = total_mean.T
-    total_std = total_std.T
-    total_std = total_std + mask
-    fig = plot(total_std, low_bd=.35, up_bd=0.8)
-    fig.set_size_inches((20, 10.25))
-    # fig.savefig('figs/cmip/cmip5_historical_mean', dpi=300)
-    # write_surface('cmip_calcs/cmip5_historical_mean', total_mean)
+    # means = []
+    # for start, end in zip(model_starts[:-1], model_starts[1:]):
+    #     model = models_ens[start][0]
+    #     ensemble = models_ens[start][1]
+    #     print(model, ensemble)
+    #     batch_size = end - start
+    #     batch = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=batch_size, start=start)
+    #     mean = np.mean(batch, axis=(0))
+    #     # mean = mean + mask
+    #     means.append(mean)
+    #     # write_surface('cmip_calcs/model_means_mask/'+model+'_mean', mean)
+    #     # fig = plot(mean)
+    #     # fig.set_size_inches((20, 10.25))
+    #     # fig.savefig('figs/cmip/model_means_mask/'+model+'_mean', dpi=300)
+    #     # print("means len", len(means))
+
+    # means = np.array(means)
+    # means[means > 4] = np.nan
+    # # print(means.shape)
+    # # total_mean = np.nanmean(means, axis=(0))
+    # total_std = np.nanstd(means, axis=(0))
+    # print(total_std.shape)
+    # # print(total_mean.shape)
+    # # mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
+    # # total_mean = total_mean.T
+    # total_std = total_std.T
+    # total_std = total_std + mask
+    # fig = plot(total_std, low_bd=.35, up_bd=0.8)
+    # fig.set_size_inches((20, 10.25))
+    # # fig.savefig('figs/cmip/cmip5_historical_mean', dpi=300)
+    # # write_surface('cmip_calcs/cmip5_historical_mean', total_mean)
 
 
     # stds = np.nanstd(means, axis=(1,2))
@@ -173,7 +173,18 @@ def main():
     # print(np.nanmin(tbf), np.nanmax(tbf))
     # fig = plot(tbf, low_bd=0, up_bd=25)
     # fig.set_size_inches((20, 10.25))
-    plt.show()
+    print(start_arr)
+    return
+    print(params)
+    cmip5_historical = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=31, start=0)
+    print(cmip5_historical.shape)
+    for i, mdt in enumerate(cmip5_historical):
+        fig = plot(mdt.T, title=params[i][0]+'_'+params[i][1]+'_'+params[i][2])
+        fig.set_size_inches((20, 10.25))
+        fig.savefig('gif_imgs/'+params[i][0]+'_'+params[i][1]+'_'+params[i][2], dpi=300)
+        plt.close()
+        # plt.show()
+
 
 
 

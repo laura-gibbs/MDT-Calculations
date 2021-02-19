@@ -4,7 +4,7 @@
 *.png
 *.exe
 *.eps
-
+*.gif
 
 .vscode/
 __pycache__/
