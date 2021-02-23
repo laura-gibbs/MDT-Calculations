@@ -69,6 +69,29 @@ def calc_mean(fname, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bo
     return means
 
 
+def compute_sd(means_arr, fig_dir, dat_dir, prod_name, plot_bool=False, write=False):
+    # Arg example: prod_name = 'cmip6_hist'
+    means = np.array(means)
+    means[means > 4] = np.nan
+    total_mean = np.nanmean(means, axis=(0))
+    total_std = np.nanstd(means, axis=(0))
+    total_mean = total_mean.T
+    total_std = total_std.T
+    if plot_bool:
+        fig = plot(total_mean)#, low_bd=.35, up_bd=0.8)
+        fig.set_size_inches((20, 10.25))
+        fig.savefig(fig_dir+prod_name+'_mean', dpi=300)
+        plt.close()
+        fig = plot(total_std)#, low_bd=.35, up_bd=0.8)
+        fig.set_size_inches((20, 10.25))
+        fig.savefig(fig_dir+prod_name+'_std', dpi=300)
+        plt.close()
+    if write:
+        write_surface(dat_dir+prod_name+'_mean', total_mean)
+        write_surface(dat_dir+prod_name+'_std', total_std)
+    
+    return total_mean, total_std
+
 def main():
     mdts = '../a_mdt_data/computations/mdts/'
     cs = '../a_mdt_data/computations/cs/'
@@ -82,30 +105,9 @@ def main():
     hist_cmip6_path = '../a_mdt_data/datasets/cmip6/'
     hist_cmip6_datfile = 'cmip6_historical_mdts_yr5.dat'
 
-    means = calc_mean(hist_cmip6_file, hist_cmip6_datfile, hist_cmip6_path, '../a_mdt_data/figs/cmip6/model_means/', '../a_mdt_data/computations/cmip6_calcs/model_means/',
-                      mean_per='model')
-    
-
-    means = np.array(means)
-    means[means > 4] = np.nan
-    total_mean = np.nanmean(means, axis=(0))
-    total_std = np.nanstd(means, axis=(0))
-    total_mean = total_mean.T
-    total_std = total_std.T
-    # total_std = total_std + mask
-    fig = plot(total_mean)#, low_bd=.35, up_bd=0.8)
-    fig.set_size_inches((20, 10.25))
-    fig.savefig('../a_mdt_data/figs/cmip6/cmip6_historical_mean', dpi=300)
-    plt.close()
-    write_surface('../a_mdt_data/computations/cmip6_calcs/cmip6_historical_mean', total_mean)
-    fig = plot(total_std)#, low_bd=.35, up_bd=0.8)
-    fig.set_size_inches((20, 10.25))
-    fig.savefig('../a_mdt_data/figs/cmip6/cmip6_historical_std', dpi=300)
-    plt.close()
-    write_surface('../a_mdt_data/computations/cmip6_calcs/cmip6_historical_std', total_std)
-
-    # stds = np.nanstd(means, axis=(1,2))
-
+    # means = calc_mean(hist_cmip6_file, hist_cmip6_datfile, hist_cmip6_path, '../a_mdt_data/figs/cmip6/model_means/', '../a_mdt_data/computations/cmip6_calcs/model_means/',
+    #                   mean_per='model')
+    # total_mean, total_std = compute_std(means, '../a_mdt_data/figs/cmip6/', '../a_mdt_data/computations/cmip6_calcs/', 'cmip6_hist')
 
     # cmip5_historical = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=31, start=0)
     # for i, mdt in enumerate(cmip5_historical):
