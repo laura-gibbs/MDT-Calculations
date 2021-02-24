@@ -69,12 +69,12 @@ def calc_mean(fname, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bo
     return means
 
 
-def compute_sd(means_arr, fig_dir, dat_dir, prod_name, plot_bool=False, write=False):
+def compute_sd(arr, fig_dir, dat_dir, prod_name, plot_bool=False, write=False):
     # Arg example: prod_name = 'cmip6_hist'
-    means = np.array(means)
-    means[means > 4] = np.nan
-    total_mean = np.nanmean(means, axis=(0))
-    total_std = np.nanstd(means, axis=(0))
+    arr = np.array(arr)
+    arr[arr > 4] = np.nan
+    total_mean = np.nanmean(arr, axis=(0))
+    total_std = np.nanstd(arr, axis=(0))
     total_mean = total_mean.T
     total_std = total_std.T
     if plot_bool:
@@ -109,15 +109,29 @@ def main():
     #                   mean_per='model')
     # total_mean, total_std = compute_std(means, '../a_mdt_data/figs/cmip6/', '../a_mdt_data/computations/cmip6_calcs/', 'cmip6_hist')
 
-    # cmip5_historical = read_surfaces('cmip5_historical_mdts_yr5.dat', historical, number=31, start=0)
+    # cmip6_historical = read_surfaces('cmip6_historical_mdts_yr5.dat', historical, number=31, start=0)
     # for i, mdt in enumerate(cmip5_historical):
     #     fig = plot(mdt.T, title=params[i][0]+'_'+params[i][1]+'_'+params[i][2])
     #     fig.set_size_inches((20, 10.25))
     #     fig.savefig('gif_imgs/'+params[i][0]+'_'+params[i][1]+'_'+params[i][2], dpi=300)
     #     plt.close()
-        # plt.show()
+    #     plt.show()
 
-
+    # access_esm1_5 = read_surfaces(hist_cmip6_datfile, hist_cmip6_path, transpose=True, number=32, start=32)
+    # for mdt in access_esm1_5:
+    #     print(np.min(mdt), np.max(mdt), np.nanmax(mdt), np.nanmin(mdt))
+    #     fig = plot(mdt, bds=4.5)
+    #     fig.set_size_inches((20, 10.25))
+    #     plt.show()
+    #     plt.close()
+    
+    cmip6_historical = read_surfaces('cmip6_historical_mdts_yr5.dat', hist_cmip6_path, number=32, start=32)
+    print(cmip6_historical.shape)
+    mean_mdt = np.nanmean(cmip6_historical, axis=(0))
+    print(np.min(mean_mdt), np.max(mean_mdt), np.nanmin(mean_mdt), np.nanmax(mean_mdt))
+    fig = plot(mean_mdt, bds=3)
+    fig.set_size_inches((20, 10.25))
+    plt.show()
 
 if __name__ == '__main__':
     main()

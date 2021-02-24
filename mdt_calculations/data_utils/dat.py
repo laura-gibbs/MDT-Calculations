@@ -66,7 +66,7 @@ def read_surface(filename, path=None, fortran=True, nans=True,
 
 
 def read_surfaces(filename, path=None, fortran=True, nans=True,
-                  transpose=False, number=1, start=None):
+                  transpose=True, number=1, start=None):
     r"""
     """
     order = 'F' if fortran else 'C'

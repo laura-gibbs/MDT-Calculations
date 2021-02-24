@@ -57,8 +57,8 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             ticks = np.linspace(vmin, vmax, num=11)
             dp = '{:.2f}'
         else:
-            ticks = np.linspace(0.35, 0.8, num=10)
-            dp = '{:.2f}'
+            ticks = np.linspace(-bds, bds, num=10)
+            dp = '{:.1f}'
     elif product == 'cs':
         if bds == 0.5 and product == 'cs':
             ticks = np.linspace(vmin, vmax, num=6)
