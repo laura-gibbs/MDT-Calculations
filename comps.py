@@ -1,21 +1,15 @@
 from mdt_calculations.data_utils.netcdf import load_cls, load_dtu  # load_dtu - pc breaks with big dtu mdts
-from mdt_calculations.plotting.plot import plot
-from mdt_calculations.data_utils.dat import read_surface, read_surfaces, write_surface
+from mdt_calculations.plotting.plot import plot, save_figs
+from mdt_calculations.data_utils.dat import read_surface, read_surfaces, write_surface, read_params
 from mdt_calculations.computations.wrapper import mdt_wrapper, cs_wrapper
+from mdt_calculations.plotting.gifmaker import gen_gif
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 
 
-def calc_mean(fname, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bool=False, write=False):
-    filepath = os.path.join(os.path.normpath(path), fname)
-    f = open(filepath, "r")
-    # ignore header
-    f.readline()
-    params = []
-    for line in f.read().splitlines():
-        params.append(line.split())
-    params = np.array(params)
+def calc_mean(txt_file, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bool=False, write=False):
+    params = read_params(txt_file, path)
     models = params[:,0]
     ens = params[:,1]
 
@@ -94,44 +88,67 @@ def compute_sd(arr, fig_dir, dat_dir, prod_name, plot_bool=False, write=False):
 
 def main():
     mdts = '../a_mdt_data/computations/mdts/'
-    cs = '../a_mdt_data/computations/cs/'
+    cs = '../a_mdt_data/computations/currents/'
+    figs_dir = '../a_mdt_data/figs/'
     mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
-    hist_cmip5_path = '../a_mdt_data/datasets/cmip5/historical/'
+    cmip5_path = '../a_mdt_data/datasets/cmip5/historical/'
     rcp60 = '../a_mdt_data/datasets/cmip5/rcp60/' 
-    hist_cmip5_file = 'cmip5_historical_mdts_yr5_meta.txt'
-    hist_cmip5_datfile = 'cmip5_historical_mdts_yr5.dat'
+    cmip5_file = 'cmip5_historical_mdts_yr5_meta.txt'
+    cmip5_datfile = 'cmip5_historical_mdts_yr5.dat'
 
-    hist_cmip6_file = 'cmip6_historical_mdts_yr5_meta.txt'
-    hist_cmip6_path = '../a_mdt_data/datasets/cmip6/'
-    hist_cmip6_datfile = 'cmip6_historical_mdts_yr5.dat'
+    cmip6_file = 'cmip6_historical_mdts_yr5_meta.txt'
+    cmip6_path = '../a_mdt_data/datasets/cmip6/'
+    cmip6_datfile = 'cmip6_historical_mdts_yr5.dat'
+    cmip5_models = '../a_mdt_data/computations/cmip5_calcs/model_means/'
+    # cmip6_hist = read_surfaces('cmip6_historical_mdts_yr5.dat', cmip6_path, number=32, start=32)
+    # mean_mdt = np.nanmean(cmip6_hist, axis=(0))
+    # fig = plot(mean_mdt, bds=3)
+    # fig.set_size_inches((20, 10.25))
 
-    # means = calc_mean(hist_cmip6_file, hist_cmip6_datfile, hist_cmip6_path, '../a_mdt_data/figs/cmip6/model_means/', '../a_mdt_data/computations/cmip6_calcs/model_means/',
+    # means = calc_mean(cmip6_file, cmip6_datfile, cmip6_path, '../a_mdt_data/figs/cmip6/model_means/', '../a_mdt_data/computations/cmip6_calcs/model_means/',
     #                   mean_per='model')
     # total_mean, total_std = compute_std(means, '../a_mdt_data/figs/cmip6/', '../a_mdt_data/computations/cmip6_calcs/', 'cmip6_hist')
 
-    # cmip6_historical = read_surfaces('cmip6_historical_mdts_yr5.dat', historical, number=31, start=0)
-    # for i, mdt in enumerate(cmip5_historical):
-    #     fig = plot(mdt.T, title=params[i][0]+'_'+params[i][1]+'_'+params[i][2])
-    #     fig.set_size_inches((20, 10.25))
-    #     fig.savefig('gif_imgs/'+params[i][0]+'_'+params[i][1]+'_'+params[i][2], dpi=300)
-    #     plt.close()
-    #     plt.show()
+    # params = read_params(cmip6_file, cmip6_path)
+    # save_figs(cmip6_datfile, cmip6_path, 32, 5120, params, 'gifs/gif_imgs/cmip6MIP-ESM1-2-HR_180/')
 
-    # access_esm1_5 = read_surfaces(hist_cmip6_datfile, hist_cmip6_path, transpose=True, number=32, start=32)
-    # for mdt in access_esm1_5:
-    #     print(np.min(mdt), np.max(mdt), np.nanmax(mdt), np.nanmin(mdt))
-    #     fig = plot(mdt, bds=4.5)
-    #     fig.set_size_inches((20, 10.25))
-    #     plt.show()
-    #     plt.close()
+    # gen_gif('cmip6MIP-ESM1-2-HR_180', 'cmip6MIP-ESM1-2-HR_180')
+
+    cls18_cs = read_surface('cls18_cs.dat', cs)
+    fig = plot(cls18_cs, bds=2, product='cs')
+    # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
+
+    orca_cs = read_surface('orca0083_cs.dat', cs)
+    fig = plot(orca_cs, bds=2, product='cs')
+    # fig.savefig(figs_dir+'nemo/nemo_cs', dpi=300)
+
+    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(access_cs, bds=2, product='cs', log=True)
+    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_cs_log', dpi=300)
+    plt.close()
+    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(access_cs, bds=2, product='cs', extent='gs', log=True)
+    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_gs_log', dpi=300)
+    plt.close()
+    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(access_cs, bds=2, product='cs', extent='ag', log=True)
+    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_ag_log', dpi=300)
+    plt.close()
+    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(access_cs, bds=2, product='cs')
+    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_cs', dpi=300)
+    plt.close()
+    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(access_cs, bds=2, product='cs', extent='gs')
+    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_gs', dpi=300)
+    plt.close()
+    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(access_cs, bds=2, product='cs', extent='ag')
+    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_ag', dpi=300)
+    plt.close()
     
-    cmip6_historical = read_surfaces('cmip6_historical_mdts_yr5.dat', hist_cmip6_path, number=32, start=32)
-    print(cmip6_historical.shape)
-    mean_mdt = np.nanmean(cmip6_historical, axis=(0))
-    print(np.min(mean_mdt), np.max(mean_mdt), np.nanmin(mean_mdt), np.nanmax(mean_mdt))
-    fig = plot(mean_mdt, bds=3)
-    fig.set_size_inches((20, 10.25))
-    plt.show()
+
+    
 
 if __name__ == '__main__':
     main()

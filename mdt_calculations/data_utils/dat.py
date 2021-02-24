@@ -142,6 +142,18 @@ def write_surface(filename, arr, path=None, fortran=False, nan_mask=None,
     fid.close()
 
 
+def read_params(txt_file, path):
+    filepath = os.path.join(os.path.normpath(path), txt_file)
+    f = open(filepath, "r")
+    f.readline()
+    params = []
+    for line in f.read().splitlines():
+        params.append(line.split())
+    params = np.array(params)
+    
+    return params
+
+
 def main():
     print("read_data.py main")
 

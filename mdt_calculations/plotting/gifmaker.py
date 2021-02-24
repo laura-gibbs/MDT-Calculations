@@ -1,8 +1,11 @@
 import imageio
 import glob
-images = []
-filenames = glob.glob("../../gif_imgs/*.png") 
-print(filenames)
-for filename in filenames:
-    images.append(imageio.imread(filename))
-imageio.mimsave('test.gif', images, duration=0.5)
+
+
+def gen_gif(imgs_dir, name):
+    images = []
+    filenames = glob.glob('gifs/gif_imgs/'+imgs_dir+'/*.png') 
+    print(filenames)
+    for filename in filenames:
+        images.append(imageio.imread(filename))
+    imageio.mimsave('gifs/'+name+'.gif', images, duration=0.5)
