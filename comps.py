@@ -1,5 +1,6 @@
 from mdt_calculations.data_utils.netcdf import load_cls, load_dtu  # load_dtu - pc breaks with big dtu mdts
 from mdt_calculations.plotting.plot import plot, save_figs
+from mdt_calculations.plotting.multiplot import multi_plot
 from mdt_calculations.data_utils.dat import read_surface, read_surfaces, write_surface, read_params
 from mdt_calculations.computations.wrapper import mdt_wrapper, cs_wrapper
 from mdt_calculations.plotting.gifmaker import gen_gif
@@ -86,6 +87,36 @@ def compute_sd(arr, fig_dir, dat_dir, prod_name, plot_bool=False, write=False):
     
     return total_mean, total_std
 
+
+def easy_plot(dat_file, dat_path, product, bds, figs_dir, figname, log=True):
+    surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(surface, bds=bds, product=product)
+    fig.savefig(figs_dir+figname+'_cs', dpi=300)
+    plt.close()
+    surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(surface, bds=bds, product=product, extent='gs')
+    fig.savefig(figs_dir+figname+'_gs', dpi=300)
+    plt.close()
+    surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    fig = plot(surface, bds=bds, product=product, extent='ag')
+    fig.savefig(figs_dir+figname+'_ag', dpi=300)
+    plt.close()
+    if log:
+        surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+        fig = plot(surface, bds=bds, product=product, log=True)
+        fig.savefig(figs_dir+figname+'_cs_log', dpi=300)
+        plt.close()
+        surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+        fig = plot(surface, bds=bds, product=product, extent='gs', log=True)
+        fig.savefig(figs_dir+figname+'_gs_log', dpi=300)
+        plt.close()
+        surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+        fig = plot(surface, bds=bds, product=product, extent='ag', log=True)
+        fig.savefig(figs_dir+figname+'_ag_log', dpi=300)
+        plt.close()
+    return surface
+
+
 def main():
     mdts = '../a_mdt_data/computations/mdts/'
     cs = '../a_mdt_data/computations/currents/'
@@ -115,40 +146,21 @@ def main():
     # gen_gif('cmip6MIP-ESM1-2-HR_180', 'cmip6MIP-ESM1-2-HR_180')
 
     cls18_cs = read_surface('cls18_cs.dat', cs)
-    fig = plot(cls18_cs, bds=2, product='cs')
-    # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
+    # fig = plot(cls18_cs, bds=2, product='cs')
+    # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
 
     orca_cs = read_surface('orca0083_cs.dat', cs)
-    fig = plot(orca_cs, bds=2, product='cs')
-    # fig.savefig(figs_dir+'nemo/nemo_cs', dpi=300)
+    # fig = plot(orca_cs, bds=2, product='cs', )
+    # # fig.savefig(figs_dir+'nemo/nemo_cs', dpi=300)
 
-    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    fig = plot(access_cs, bds=2, product='cs', log=True)
-    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_cs_log', dpi=300)
-    plt.close()
-    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    fig = plot(access_cs, bds=2, product='cs', extent='gs', log=True)
-    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_gs_log', dpi=300)
-    plt.close()
-    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    fig = plot(access_cs, bds=2, product='cs', extent='ag', log=True)
-    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_ag_log', dpi=300)
-    plt.close()
-    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    fig = plot(access_cs, bds=2, product='cs')
-    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_cs', dpi=300)
-    plt.close()
-    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    fig = plot(access_cs, bds=2, product='cs', extent='gs')
-    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_gs', dpi=300)
-    plt.close()
-    access_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    fig = plot(access_cs, bds=2, product='cs', extent='ag')
-    fig.savefig(figs_dir+'cmip6/cs/MPI-ESM1-2-HR_ag', dpi=300)
-    plt.close()
-    
+    # access_cs = easy_plot('MPI-ESM1-2-HR_cs.dat', cs, product='cs', bds=2,
+    #                       figs_dir=figs_dir+'cmip6/cs/', figname='MPI-ESM1-2-HR')
+    surface1 = np.array(cls18_cs)
+    surface2 = np.array(orca_cs)
+    print(surface1.shape, surface2.shape)
+    surfaces = np.asarray((surface1, surface1))#, surface1, surface1))
+    multi_plot(surfaces, 1, 2, extent='gs')
 
-    
-
+    # multi_plot(surfaces, 2, 2, extent='gs')
 if __name__ == '__main__':
     main()
