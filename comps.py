@@ -131,6 +131,7 @@ def main():
     cmip6_path = '../a_mdt_data/datasets/cmip6/'
     cmip6_datfile = 'cmip6_historical_mdts_yr5.dat'
     cmip5_models = '../a_mdt_data/computations/cmip5_calcs/model_means/'
+    cmip6_models = '../a_mdt_data/computations/cmip6_calcs/model_means/'
     # cmip6_hist = read_surfaces('cmip6_historical_mdts_yr5.dat', cmip6_path, number=32, start=32)
     # mean_mdt = np.nanmean(cmip6_hist, axis=(0))
     # fig = plot(mean_mdt, bds=3)
@@ -153,14 +154,27 @@ def main():
     # fig = plot(orca_cs, bds=2, product='cs', )
     # # fig.savefig(figs_dir+'nemo/nemo_cs', dpi=300)
 
-    # access_cs = easy_plot('MPI-ESM1-2-HR_cs.dat', cs, product='cs', bds=2,
-    #                       figs_dir=figs_dir+'cmip6/cs/', figname='MPI-ESM1-2-HR')
+    access_cs = read_surface('ACCESS1-0_cs.dat', cs)
+    mpi_esm1_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+
     surface1 = np.array(cls18_cs)
     surface2 = np.array(orca_cs)
-    print(surface1.shape, surface2.shape)
-    surfaces = np.asarray((surface1, surface1))#, surface1, surface1))
-    multi_plot(surfaces, 1, 2, extent='gs')
+    surface3 = np.array(mpi_esm1_cs)
+    surface4 = np.array(access_cs)
+    # print(surface1.shape, surface2.shape)
+    surfaces = np.asarray((surface1, surface2, surface3, surface4))
+    # multi_plot(surfaces, 1, 2, extent='gs')
+    axtitles = ['CNES-CLS18', 'Nemo ORCA12', 'MPI-ESM1-2-HR (CMIP6)', 'ACCESS1-0 (CMIP5)']
+    # multi_plot(surfaces, axtitles=axtitles)
 
-    # multi_plot(surfaces, 2, 2, extent='gs')
+    path0 = '../a_mdt_data/computations/geoids/'
+    geoid1 = np.array(read_surface('gtim5_do0280_rr0004.dat', path0))
+    geoid2 = np.array(read_surface('gtim5_do0150_rr0004.dat', path0))
+    geoid3 = np.array(read_surface('gtim5_do0050_rr0004.dat', path0))
+    geoid4 = np.array(read_surface('gtim5_do0010_rr0004.dat', path0))
+    geoids = np.asarray((geoid1, geoid2, geoid3, geoid4))
+    geoidtitles = ['Degree/order 280', 'Degree/order 150', 'Degree/order 50', 'Degree/order 10']
+    multi_plot(geoids, product='geoid', axtitles=geoidtitles)
+    
 if __name__ == '__main__':
     main()
