@@ -7,6 +7,7 @@ from mdt_calculations.plotting.gifmaker import gen_gif
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+from netCDF4 import Dataset as netcdf_dataset
 
 
 def calc_mean(txt_file, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bool=False, write=False):
@@ -122,8 +123,9 @@ def main():
     mss = '../a_mdt_data/computations/mss/'
     geoids = '../a_mdt_data/computations/geoids/'
     cs = '../a_mdt_data/computations/currents/'
+    masks = '../a_mdt_data/computations/masks/'
     figs_dir = './figs/'
-    mask = read_surface('mask_rr0008.dat', '../a_mdt_data/computations/masks/')
+    mask = read_surface('mask_rr0004.dat', '../a_mdt_data/computations/masks/')
     cmip5_path = '../a_mdt_data/datasets/cmip5/historical/'
     rcp60 = '../a_mdt_data/datasets/cmip5/rcp60/' 
     cmip5_file = 'cmip5_historical_mdts_yr5_meta.txt'
@@ -169,24 +171,24 @@ def main():
     axtitles = ['CNES-CLS18', 'Nemo ORCA12', 'MPI-ESM1-2-HR (CMIP6)', 'ACCESS1-0 (CMIP5)']
     # multi_plot(surfaces, axtitles=axtitles)
 
-    arr1 = np.array(read_surface('dtu15_eigen-6c4_do0050_rr0004.dat', mdts))
-    arr2 = np.array(read_surface('dtu15_eigen-6c4_do0100_rr0004.dat', mdts))
-    arr3 = np.array(read_surface('dtu15_eigen-6c4_do0150_rr0004.dat', mdts))
-    arr4 = np.array(read_surface('dtu15_eigen-6c4_do0280_rr0004.dat', mdts))
-    arrs = np.asarray((arr1, arr2, arr3, arr4))
-    titles = ['Degree/order 50', 'Degree/order 100', 'Degree/order 150', 'Degree/order 280']
-    # multi_plot(arrs, product='geoid', axtitles=titles, coastlines=True)
+    # arr1 = np.array(read_surface('dtu15_eigen-6c4_do0050_rr0004.dat', mdts))
+    # arr2 = np.array(read_surface('dtu15_eigen-6c4_do0100_rr0004.dat', mdts))
+    # arr3 = np.array(read_surface('dtu15_eigen-6c4_do0150_rr0004.dat', mdts))
+    # arr4 = np.array(read_surface('dtu15_eigen-6c4_do0280_rr0004.dat', mdts))
+    # arrs = np.asarray((arr1, arr2, arr3, arr4))
+    # titles = ['Degree/order 50', 'Degree/order 100', 'Degree/order 150', 'Degree/order 280']
+    # # multi_plot(arrs, product='geoid', axtitles=titles, coastlines=True)
     
-    a_titles = ['DTU15MSS-GTIM5 MDT (degree/order 280)', 'DTU15MSS-EIGEN6C4 MDT (degree/order 280)']
-    arr5 = np.array(read_surface('dtu15_gtim5_do0280_rr0004.dat', mdts))
-    arrs2 = np.asarray((arr5, arr4))
-    multi_plot(arrs2, product='mdt', axtitles=a_titles, stacked=False)
+    # a_titles = ['DTU15MSS-GTIM5 MDT (degree/order 280)', 'DTU15MSS-EIGEN6C4 MDT (degree/order 280)']
+    # arr5 = np.array(read_surface('dtu15_gtim5_do0280_rr0004.dat', mdts))
+    # arrs2 = np.asarray((arr5, arr4))
+    # # multi_plot(arrs2, product='mdt', axtitles=a_titles, stacked=False)
 
-    arr6 = np.array(read_surface('dtu15_gtim5_do0280_rr0004_cs.dat', cs))
-    arr7 = np.array(read_surface('dtu15_eigen-6c4_do0280_rr0004_cs.dat', cs))
-    b_titles = ['Geostrophic Currents Produced from the DTU15MSS-GTIM5 MDT (degree/order 280)', 'Geostrophic Currents Produced from the DTU15MSS-EIGEN6C4 MDT (degree/order 280)']
-    arrs3 = np.asarray((arr6, arr7))
-    # multi_plot(arrs3, product='cs', axtitles=b_titles, stacked=False)
+    # arr6 = np.array(read_surface('dtu15_gtim5_do0280_rr0004_cs.dat', cs))
+    # arr7 = np.array(read_surface('dtu15_eigen-6c4_do0280_rr0004_cs.dat', cs))
+    # b_titles = ['Geostrophic Currents Produced from the DTU15MSS-GTIM5 MDT (degree/order 280)', 'Geostrophic Currents Produced from the DTU15MSS-EIGEN6C4 MDT (degree/order 280)']
+    # arrs3 = np.asarray((arr6, arr7))
+    # # multi_plot(arrs3, product='cs', axtitles=b_titles, stacked=False)
 
     
     # dtu15_eigen6c4 = read_surface('dtu15_ITSG-Grace2018s_do0190_rr0004.dat', mdts)
@@ -205,17 +207,39 @@ def main():
     # fig.savefig(figs_dir+'geoid_plots/ITSG-Grace2018s_do0190_rr0004', dpi=300)
     # plt.close()
 
-    dtu15_eigen6c4_cs = read_surface('dtu15_eigen-6c4_do0280_rr0004_cs.dat', cs)
-    fig = plot(dtu15_eigen6c4_cs, bds=2, product='cs')
+    # dtu15_eigen6c4_cs = read_surface('dtu15_eigen-6c4_do0280_rr0004_cs.dat', cs)
+    # fig = plot(dtu15_eigen6c4_cs, bds=2, product='cs')
     # fig.savefig(figs_dir+'currents/geodetic/dtu15_eigen-6c4_do0280_rr0004_cs', dpi=300)
-    plt.close()
-
-    # dip_cs = read_surface('dip_cs/dip_0_dtu15_gtim5_cs.dat', cs)
-    # fig = plot(dip_cs, central_lon=180, bds=2, product='cs')
-    # fig.savefig(figs_dir+'currents/dip/dip_0_dtu15_gtim5_cs', dpi=300)
     # plt.close()
-    # return
-
+    plot(mask)
+    plt.show()
+    mask60 = read_surface('gebco/bin/gebco14_1min_lmsk.dat', masks)
+    tmp = mask60[:,:10800].copy()
+    tmp2 = mask60[:,10800:].copy()
+    mask60 = np.concatenate([tmp2, tmp], axis=1)
+    print(mask60)
+    print(mask60.shape)
+    write_surface('mask_rr0060.dat', mask60, masks, overwrite=True)
+    # plot(mask60)
+    # plt.show()
+    # plt.close()
+    dtu_path = '../a_mdt_data/datasets/dtu/'
+    # dtu_mss, lats, lons = load_dtu(, dtu_path)
+    # print(dtu_mss.shape, lats.shape, lons.shape)
+    # write_surface('DTU18MSS_1min.dat', dtu_mss, mss)
+    # dtu18MSS = read_surface('dtu18mss_1min.dat', mss)
+    # fig = plot(dtu18MSS)
+    # plt.show()
+    filepath = os.path.join(os.path.normpath(dtu_path), 'DTU15MDT_1min.mdt.nc')
+    dataset = netcdf_dataset(filepath)
+    mdt = dataset.variables['mdt'][:]
+    mdt = mdt[:,1:21601] 
+    print(mdt.shape)
+    write_surface('dtu15_mdt.dat', mdt, mdts, overwrite=True)
+    mdt = mdt*mask60
+    print(mdt.shape)
+    plot(mdt)
+    plt.show()
 
 if __name__ == '__main__':
     main()

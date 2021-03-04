@@ -30,7 +30,8 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             vmin = -100
             vmax = 100
             cmap = 'RdBu_r'
-
+            ticks = np.linspace(vmin, vmax, num=9)
+            coastlines = True
     if log:
         vmin = 0.1
         norm = colors.LogNorm(vmin, vmax)
