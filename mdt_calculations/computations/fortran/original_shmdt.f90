@@ -1,105 +1,53 @@
       implicit none
-!     Variable declarations
-!===========================================================
-!     General
-!-------------------------------------------------  
-      integer :: i,j,II,JJ
-      integer :: rr
-      character*128 :: pin0,pin1,pout,fout
-      character(len=40) :: name_mdt
-      character(len=4) :: rr_str
-
-      real,allocatable :: gmdt(:,:),mask(:,:),gcs(:,:)
-      real,allocatable :: glon(:),glat(:),lat(:)
-      real,allocatable :: ds(:)
-      real,allocatable :: mdt(:,:),cs(:,:)
-
-      real :: r,g,omega,torad
-      real :: lat0,lats
-      real :: sm,area,mn
-!     Required output grid
-!-------------------------------------------------
-      real*8 :: lon_stp       ! Longitude interval
-      real*8 :: ltgd_stp      ! Latitude interval
-
-      real*8 :: lon_min       ! Min longitude
-      real*8 :: lon_max       ! Max longitude
-
-      real*8 :: ltgd_min      ! Min latitude
-      real*8 :: ltgd_max      ! Max latitude
-
-
-      pin0='./../a_mdt_data/computations/masks/'
-      pin1='./../a_mdt_data/computations/mdts/'
-      pout='./../a_mdt_data/computations/currents/'
-
-!     Read in the mdt parameter file
-!--------------------------------------------------
-      open(21,file='./cs_params.txt',form='formatted')
-      read(21,'(A40)')name_mdt
-      read(21,'(I4)')rr
-      close(21)
-
-!     Required output grid
-!-------------------------------------------------
-      lon_stp  = 1.0d0/rr                ! Longitude interval
-      ltgd_stp = 1.0d0/rr                ! Latitude interval
-
-      lon_min = 0.5d0*lon_stp            ! Min longitude
-      lon_max = 360.0d0-0.5d0*lon_stp    ! Max longitude
-
-      ltgd_min = -90.00d0+0.5d0*ltgd_stp   ! Min latitude
-      ltgd_max =  90.00d0-0.5d0*ltgd_stp   ! Max latitude
-!-------------------------------------------------
-
-!     Compute grid dimensions
-!     and make memory allocations 
-!-------------------------------------------------
-      II = nint((lon_max-lon_min)/lon_stp)+1
-      JJ = nint((ltgd_max-ltgd_min)/ltgd_stp)+1
-
-      write(*,*)II,JJ
-      !stop
-
-      allocate(mask(II,JJ))
-      allocate(glon(II))
-      allocate(glat(JJ))
-      allocate(ds(JJ))
-      allocate(lat(JJ))
-      allocate(gmdt(II,JJ))
-      allocate(gcs(II,JJ))
-      allocate(cs(II,JJ))
-      allocate(mdt(II,JJ))
       
-!-------------------------------------------------
+      ! integer, parameter :: i1=680,i2=801,j1=628,j2=657
+      integer, parameter :: i1=1,i2=1440,j1=1,j2=720
+      integer, parameter :: II=i2-i1+1 !=122
+      integer, parameter :: JJ=j2-j1+1 !=30
+      integer, parameter :: IIin=1440,JJin=720
 
+      integer :: i,j,n
+      real    :: gmdt(IIin,JJin),tmp(IIin,JJin),mask(IIin,JJin)
+      real    :: glon(IIin),glat(JJin),gcs(IIin,JJin)
+      real    :: r,g,omega,torad
+      real    :: lat0,lats,ln,lt
+      real    :: lon(II),lat(JJ),dx(JJ),dy,f0(JJ)
+      real    :: ds(JJ)
+      real :: mdt(II,JJ),sm,area,mn
+      real :: cs(II,JJ)
+      character*24 :: hdr
+      character*128 :: path0,path1,path2,path_gmt,fn
+
+      ! path0='~/home/data/RDSF/sync/data/analysis/mdt/'
+      ! path1='~/home/data/RDSF/sync/data/analysis/mdt/mdts_by_deg/geodetic/DTU13/'
+      ! path2='./data/'
+
+      path0='./../a_mdt_data/computations/masks/'
+      path1='./../a_mdt_data/computations/mdts/'
+      path2='./../a_mdt_data/computations/currents/'
 
 !    Define global lon and lat
 !------------------------------------------------
-     do i=1,II
-        glon(i)=lon_stp*(i-0.5)
+     do i=1,IIin
+        glon(i)=0.25*(i-0.5)
      end do
 
-     do j=1,JJ
-        glat(j)=ltgd_stp*(j-0.5)-90.0
+     do j=1,JJin
+        glat(j)=0.25*(j-0.5)-90.0
      end do
 !------------------------------------------------
 
-      write(rr_str,'(I4)')rr
-      do i=1,4
-         if(rr_str(i:i).eq.' ')rr_str(i:i)='0'
-      end do
 !-------------------------------------------------
-      ! open(21,file=trim(pin1)//'GTIM5/qrt/sh_mdt_GTIM5_L240.dat',form='unformatted')
-      open(21,file=trim(pin1)//trim(name_mdt)//'.dat',form='unformatted')
-      !open(21,file=trim(pin1)//'EGM2008/qrt/sh_mdt_EGM2008_L300.dat',&&form='unformatted')
+      ! open(21,file=trim(path1)//'GTIM5/qrt/sh_mdt_GTIM5_L240.dat',form='unformatted')
+      open(21,file=trim(path1)//'mdtcs.dat',form='unformatted')
+      !open(21,file=trim(path1)//'EGM2008/qrt/sh_mdt_EGM2008_L300.dat',&&form='unformatted')
       read(21)gmdt
       close(21)
-      call mdt_cs(II,JJ,glat,gmdt,gcs)
+      call mdt_cs(IIin,JJin,glat,gmdt,gcs)
       
 
-      ! open(21,file=trim(pin0)//'masks/mask_glbl_qrtd.dat',form='unformatted')
-      open(21,file=trim(pin0)//'mask_rr'//rr_str//'.dat',form='unformatted')
+      ! open(21,file=trim(path0)//'masks/mask_glbl_qrtd.dat',form='unformatted')
+      open(21,file=trim(path0)//'mask_rr0004.dat',form='unformatted')
       read(21)mask
       close(21)
   
@@ -111,14 +59,14 @@
 !       tmp(1:1440,:)=gmdt(721:IIin,:)
 !       tmp(721:IIin,:)=gmdt(1:1440,:)
 !       gmdt(:,:)=tmp(:,:)
-      mdt(:,:)=gmdt(1:II,1:JJ)
+      mdt(:,:)=gmdt(i1:i2,j1:j2)
 ! !-------------------------------------------------
 
 ! !-------------------------------------------------
 !       tmp(1:1440,:)=gcs(721:IIin,:)
 !       tmp(721:IIin,:)=gcs(1:1440,:)
 !       gcs(:,:)=tmp(:,:)
-      cs(:,:)=gcs(1:II,1:JJ)
+      cs(:,:)=gcs(i1:i2,j1:j2)
 !-------------------------------------------------
 
 !     Area elements for each latitude
@@ -129,8 +77,8 @@
 
       torad = atan(1.0)/45.0
 
-      lat0=-90.00d0+0.5d0*ltgd_stp
-      lats=ltgd_stp*torad
+      lat0=-89.875*torad
+      lats=0.25*torad
 
       do j=1,JJ
          lat(j) = lat0+(j-1)*lats
@@ -162,19 +110,34 @@
 !-------------------------------------------------
 
 !-------------------------------------------------
-      open(21,file=trim(pout)//'tmp.dat',form='unformatted')
+      open(21,file=trim(path2)//'tmp.dat',form='unformatted')
       write(21)gmdt
       close(21)
 
  
-      open(21,file=trim(pout)//'tmp2.dat',form='unformatted')
+      open(21,file=trim(path2)//'tmp2.dat',form='unformatted')
       write(21)mdt
       close(21)
-      
-      fout=trim(name_mdt)//'_cs.dat'
-      open(21,file=trim(pout)//trim(fout),form='unformatted')
+ 
+      open(21,file=trim(path2)//'shmdtout.dat',form='unformatted')
       write(21)cs
       close(21)
+!-------------------------------------------------
+
+
+
+
+      stop
+
+      !open(30,file=trim(path_gmt)//'/shmdt_cm.ascii',form='formatted') 
+      !do j=1,JJin
+      !   lt=0.125*(j-1)-89.875
+      !   do i=1,IIin
+      !      ln=0.125*(i-1)+0.125
+      !      write(30,*)ln,lt,data(i,j)*100.0 !m->cm
+      !   end do
+      !end do
+      !close(30)
 !-------------------------------------------------
 
       stop
@@ -202,11 +165,12 @@
 !---------------------------------------       
       real, parameter :: m2cm=100.0
 
-      integer :: i,j
+      integer :: i,j,k,l,m,n,ix,jx
       real    :: r,g,omega,torad
       real    :: lats_r
       real    :: dx(JJ),dy,f0(JJ)
       real    :: u(II,JJ),v(II,JJ)
+      real    :: dir(II,JJ)
 !---------------------------------------       
 !------------------------------------------------
 

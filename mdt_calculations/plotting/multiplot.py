@@ -8,16 +8,27 @@ import numpy as np
 import matplotlib.colors as colors
 
 
-def multi_plot(surfaces, product='cs', extent=None, axtitles=None):#, subplot_titles=None):
+def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
+               coastlines=False, stacked=True):  # , subplot_titles=None):
     crs = ccrs.PlateCarree()
     panel = len(surfaces)
     central_lon = 0
-    if product == 'cs':
+    cbarwidth = 0.02
+    if product == 'mdt':
+        vmin = -1.4
+        vmax = 1.4
+        cmap = 'turbo'
+        cticks_no = 15
+    elif product == 'cs':
         vmin = 0
         vmax = 2
-    if product == 'geoid':
-        vmin = -85
-        vmax = 85
+        cmap = 'turbo'
+        cticks_no = 9
+    elif product == 'geoid':
+        vmin = -100
+        vmax = 100
+        cmap = 'RdBu_r'
+        cticks_no = 9
     if extent is not None:
         if extent == 'gs':
             x0, x1 = -85, -60
@@ -32,10 +43,23 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None):#, subplot_ti
         y0, y1 = -90, 90
         no_ticks = 9
     if panel == 2:
-        figsize = (12, 8)
-        nrows, ncols = 1, 2
-        wspace, hspace = 0.2, 0.5
-        bottom, top = 0.25, 0.9
+        if extent is None:
+            if stacked:
+                nrows, ncols = 2, 1
+                figsize = (12, 12.8)
+                wspace, hspace = 0.23, 0.13
+                bottom, top = 0.09, 0.96
+            else:
+                cbarwidth = 0.03
+                nrows, ncols = 1, 2
+                figsize = (19, 5.75)
+                wspace, hspace = 0.08, 0.02
+                bottom, top = 0.04, 0.98
+        else:
+            nrows, ncols = 1, 2
+            figsize = (12, 8)
+            wspace, hspace = 0.2, 0.5
+            bottom, top = 0.25, 0.9
     elif panel == 4:
         nrows, ncols = 2, 2
         figsize = 20, 10.5
@@ -45,6 +69,7 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None):#, subplot_ti
             figsize = (11, 11)
             if extent == 'ag':
                 figsize = (11, 9.1)
+    cticks = np.linspace(vmin, vmax, num=cticks_no)
     # Define the figure and each axis for the 3 rows and 3 columns
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols,
                             subplot_kw={'projection': crs},
@@ -54,7 +79,7 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None):#, subplot_ti
     for i, surface in enumerate(surfaces):
         surface = bound_arr(surface, vmin, vmax)
         lons, lats = create_coords(get_res(surface), central_lon=central_lon)
-        cs = axs[i].pcolormesh(lons, lats, surface, transform=crs, cmap='turbo',
+        cs = axs[i].pcolormesh(lons, lats, surface, transform=crs, cmap=cmap,
                                vmin=vmin, vmax=vmax)
         if axtitles is not None:
             axs[i].set_title(axtitles[i])
@@ -65,14 +90,16 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None):#, subplot_ti
         lon_formatter = LongitudeFormatter()
         axs[i].xaxis.set_major_formatter(lon_formatter)
         axs[i].yaxis.set_major_formatter(lat_formatter)
-
+        if coastlines:
+            axs[i].coastlines(linewidth=0.5)
     # Delete the unwanted axes
     # for i in [7,8]:
     #     fig.delaxes(axs[i])
     fig.subplots_adjust(bottom=bottom, top=top, left=0.05, right=0.95,
                         wspace=wspace, hspace=hspace)
-    cbar_ax = fig.add_axes([0.1, 0.04, 0.8, 0.02])
-    cbar = fig.colorbar(cs, cax=cbar_ax, orientation='horizontal')
+    # cbar_ax = fig.add_axes([0.1, 0.04, 0.8, 0.02])
+    cbar_ax = fig.add_axes([0.1, 0.04, 0.8, cbarwidth])
+    cbar = fig.colorbar(cs, cax=cbar_ax, ticks=cticks, orientation='horizontal')
     # plt.suptitle('GOCE GTIM5 Geoid')
     plt.show()
 

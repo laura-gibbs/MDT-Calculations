@@ -26,6 +26,10 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
         elif product == 'cs':
             vmin = 0
             vmax = bds
+        elif product == 'geoid':
+            vmin = -100
+            vmax = 100
+            cmap = 'RdBu_r'
 
     if log:
         vmin = 0.1
