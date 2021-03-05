@@ -5,6 +5,8 @@
 *.exe
 *.eps
 *.gif
+*.bat
+*.txt
 
 .vscode/
 __pycache__/

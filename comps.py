@@ -211,18 +211,12 @@ def main():
     # fig = plot(dtu15_eigen6c4_cs, bds=2, product='cs')
     # fig.savefig(figs_dir+'currents/geodetic/dtu15_eigen-6c4_do0280_rr0004_cs', dpi=300)
     # plt.close()
-    plot(mask)
-    plt.show()
+
     mask60 = read_surface('gebco/bin/gebco14_1min_lmsk.dat', masks)
     tmp = mask60[:,:10800].copy()
     tmp2 = mask60[:,10800:].copy()
     mask60 = np.concatenate([tmp2, tmp], axis=1)
-    print(mask60)
-    print(mask60.shape)
-    write_surface('mask_rr0060.dat', mask60, masks, overwrite=True)
-    # plot(mask60)
-    # plt.show()
-    # plt.close()
+
     dtu_path = '../a_mdt_data/datasets/dtu/'
     # dtu_mss, lats, lons = load_dtu(, dtu_path)
     # print(dtu_mss.shape, lats.shape, lons.shape)
@@ -230,15 +224,21 @@ def main():
     # dtu18MSS = read_surface('dtu18mss_1min.dat', mss)
     # fig = plot(dtu18MSS)
     # plt.show()
-    filepath = os.path.join(os.path.normpath(dtu_path), 'DTU15MDT_1min.mdt.nc')
+    filepath = os.path.join(os.path.normpath(dtu_path), 'DTU18MSS_1min.nc')
     dataset = netcdf_dataset(filepath)
-    mdt = dataset.variables['mdt'][:]
-    mdt = mdt[:,1:21601] 
-    print(mdt.shape)
-    write_surface('dtu15_mdt.dat', mdt, mdts, overwrite=True)
-    mdt = mdt*mask60
-    print(mdt.shape)
-    plot(mdt)
+    print(dataset)
+    dtu18mss = dataset.variables['mss'][:]
+    print(dtu18mss.shape)
+    dtu18mss = dtu18mss[:,1:21601] 
+    print(dtu18mss.shape)
+    # plot(dtu18mss, product='geoid')
+    # plt.show()
+    # write_surface('dtu18_mss.dat', dtu18mss, mss, overwrite=True)
+    # mss = mdt*mask60
+    print(dtu18mss.shape)
+    # plot(dtu18mss)
+    dtu15_cs = read_surface('dtu15_mdt_cs.dat', cs)
+    plot(dtu15_cs, product='cs')
     plt.show()
 
 if __name__ == '__main__':
