@@ -25,7 +25,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             vmax = bds
         elif product == 'cs':
             vmin = 0
-            vmax = bds
+            vmax = 2
         elif product == 'geoid':
             vmin = -100
             vmax = 100
@@ -39,7 +39,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
         norm = None
     arr = bound_arr(arr, vmin, vmax)
     im = ax.pcolormesh(lons, lats, arr, transform=crs, cmap=cmap,
-                        vmin=vmin, vmax=vmax, norm=norm)
+                       vmin=vmin, vmax=vmax, norm=norm)
     # else:
     #     im = ax.pcolormesh(lons, lats, arr, transform=crs, cmap=cmap,
     #                        vmin=vmin, vmax=vmax)        
@@ -123,6 +123,26 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     
     # plt.show()
     return fig
+
+
+def plot_projection(arr, crs, vmin=0, vmax=2, cmap='turbo'):
+    lons, lats = create_coords(get_res(arr), central_lon=0)
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection=crs)
+    arr = bound_arr(arr, vmin, vmax)
+    im = ax.pcolormesh(lons, lats, arr, transform=ccrs.PlateCarree(), cmap=cmap,
+                       vmin=vmin, vmax=vmax)
+    fig.set_size_inches((20, 10.25))
+    cbar = fig.colorbar(im, ax=ax, fraction=0.0235, pad=0.06, ticks=np.linspace(vmin, vmax, num=6))
+    # cbar.ax.set_yticklabels([dp.format(tick) for tick in ticks])
+    cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=11)
+    plt.tick_params(length=10, width=1, labelright='True')
+    plt.tick_params(axis='x', pad=8)
+    plt.tick_params(axis='y', pad=3)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    return fig
+
 
 
 def save_figs(dat_file, path, number, start, params, save_dir, bds=1.4):
