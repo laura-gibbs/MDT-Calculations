@@ -152,11 +152,25 @@ def main():
     # plot(dtu18_mdt)
     # plt.show()
     dtu18_cs = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs.dat', cs)
-    plot(dtu18_cs, product='cs')
+    # plot(dtu18_cs, product='cs')
     # plt.show()
-    plt.close()
-    plot_projection(dtu18_cs, crs=ccrs.Geostationary())
-    plt.show()
+    # plt.close()
+    # plot_projection(dtu18_cs, crs=ccrs.Geostationary())
+
+
+    arr1 = np.array(read_surface('dtu18_gtim5_do0100_rr0004.dat', mdts))
+    arr2 = np.array(read_surface('dtu18_gtim5_do0150_rr0004.dat', mdts))
+    arr3 = np.array(read_surface('dtu18_gtim5_do0200_rr0004.dat', mdts))
+    arr4 = np.array(read_surface('dtu18_gtim5_do0280_rr0004.dat', mdts))
+    arrs = np.asarray((arr1, arr2, arr3, arr4))
+    titles = ['Degree/order 100', 'Degree/order 150', 'Degree/order 200', 'Degree/order 280']
+    multi_plot(arrs, product='mdt', axtitles=titles)
+
+    arr5 = np.array(read_surface('dtu18_gtim5_do0280_rr0004.dat', mdts))
+    arr6 = np.array(read_surface('dtu18_eigen-6c4_do0280_rr0004.dat', mdts))
+    arrs2 = np.asarray((arr5, arr6))
+    titles2 = ['DTU18MSS-GTIM5 MDT (degree/order 280)', 'DTU18MSS-EIGEN6C4 MDT (degree/order 280)']
+    multi_plot(arrs2, product='mdt', axtitles=titles2)#, coastlines=True)
 
 if __name__ == '__main__':
     main()

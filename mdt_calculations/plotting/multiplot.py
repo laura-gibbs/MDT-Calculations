@@ -14,6 +14,7 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
     panel = len(surfaces)
     central_lon = 0
     cbarwidth = 0.02
+    y_ticks = 7
     if product == 'mdt':
         vmin = -1.4
         vmax = 1.4
@@ -28,6 +29,7 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
         vmin = -100
         vmax = 100
         cmap = 'RdBu_r'
+        # cmap = 'jet'
         cticks_no = 9
     if extent is not None:
         if extent == 'gs':
@@ -42,6 +44,7 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
         x0, x1 = -180, 180
         y0, y1 = -90, 90
         no_ticks = 9
+        y_ticks = 7
     if panel == 2:
         if extent is None:
             if stacked:
@@ -85,7 +88,7 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
             axs[i].set_title(axtitles[i])
         axs[i].set_extent((x0, x1, y0, y1), crs=crs)
         axs[i].set_xticks(np.linspace(x0, x1, no_ticks), crs=crs)
-        axs[i].set_yticks(np.linspace(y0, y1, no_ticks), crs=crs)
+        axs[i].set_yticks(np.linspace(y0, y1, y_ticks), crs=crs)
         lat_formatter = LatitudeFormatter()
         lon_formatter = LongitudeFormatter()
         axs[i].xaxis.set_major_formatter(lon_formatter)
