@@ -5,6 +5,7 @@ from mdt_calculations.data_utils.utils import create_coords, get_res, bound_arr
 from mdt_calculations.data_utils.dat import read_surfaces
 import numpy as np
 import matplotlib.colors as colors
+from cartopy.feature import GSHHSFeature
 
 
 def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
@@ -15,10 +16,12 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     crs = ccrs.PlateCarree(central_longitude=central_lon)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection=crs)
+    dp = '{:.1f}'
     if low_bd is not None and up_bd is not None:
         vmin = low_bd
         vmax = up_bd
         bds = None
+        # ticks = np.linspace(vmin, up_bd, num=10)
     else:
         if product == 'mdt':
             vmin = -bds
@@ -32,6 +35,13 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             cmap = 'RdBu_r'
             ticks = np.linspace(vmin, vmax, num=9)
             coastlines = True
+        elif product == 'err':
+            vmin = 0.01
+            vmax = 0.03
+            ticks = np.linspace(vmin, vmax, num=3)
+            dp = '{:.2f}'
+            cmap = 'gist_ncar'
+            # cmap = 'nipy_spectral'
     if log:
         vmin = 0.1
         norm = colors.LogNorm(vmin, vmax)
@@ -64,11 +74,11 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     ax.yaxis.set_major_formatter(lat_formatter)
     # ax.fontsize = 20
     ax.yaxis.set_ticks_position('both')
-    if land_feature:
-        ax.add_feature(cfeature.LAND)
+    # if land_feature:
+    #     ax.add_feature(cfeature.LAND)
     if coastlines:
-        ax.coastlines()
-    dp = '{:.1f}'
+        ax.add_feature(GSHHSFeature(scale='intermediate'))
+        # ax.coastlines()
     if product == 'mdt':
         if bds == 1.5:
             ticks = np.linspace(vmin, vmax, num=7)
@@ -78,8 +88,8 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             ticks = np.linspace(vmin, vmax, num=11)
             dp = '{:.2f}'
         else:
-            ticks = np.linspace(-bds, bds, num=10)
-            dp = '{:.1f}'
+            ticks = np.linspace(vmin, vmax, num=5)
+            dp = '{:.2f}'
     elif product == 'cs':
         if bds == 0.5 and product == 'cs':
             ticks = np.linspace(vmin, vmax, num=6)
@@ -90,7 +100,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
         ticksize = 14
         fig.set_size_inches((20, 10.25))
         cbar = fig.colorbar(im, ax=ax, fraction=0.0235, pad=0.06, ticks=ticks)
-        if product == 'mdt':
+        if product == 'mdt' or product == 'err' or product == 'geoid':
             plt.gcf().text(0.8855, 0.858, 'm', fontsize=14)
         if product == 'cs':
             plt.gcf().text(0.882, 0.858, 'm/s', fontsize=14)

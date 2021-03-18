@@ -137,6 +137,8 @@ def main():
     cmip6_datfile = 'cmip6_historical_mdts_yr5.dat'
     cmip5_models = '../a_mdt_data/computations/cmip5_calcs/model_means/'
     cmip6_models = '../a_mdt_data/computations/cmip6_calcs/model_means/'
+
+    dtu_path = '../a_mdt_data/datasets/dtu/'
     # cmip6_hist = read_surfaces('cmip6_historical_mdts_yr5.dat', cmip6_path, number=32, start=32)
     # mean_mdt = np.nanmean(cmip6_hist, axis=(0))
     # fig = plot(mean_mdt, bds=3)
@@ -147,30 +149,37 @@ def main():
     # total_mean, total_std = compute_std(means, '../a_mdt_data/figs/cmip6/', '../a_mdt_data/computations/cmip6_calcs/', 'cmip6_hist')
 
     # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
+
+    min_mask = read_surface('mask_rr0060.dat', masks)
+    # dtu15err, lats, lons = load_dtu('DTU15ERR_1min.err.nc', dtu_path, 'err')
+    # dtu18err, lats, lons = load_dtu('DTU18ERR_1min.nc', dtu_path, 'err')
+    # print('err min and max: ', np.nanmin(dtu15err), np.nanmax(dtu18err))
+    # print('err min and max: ', np.nanmin(dtu18err), np.nanmax(dtu18err))
+    # diff = dtu15err[:,1:21601] - dtu18err[:,1:21601]
+    # dtu15err = dtu15err[:,1:21601] + min_mask
+    # dtu18err = dtu18err[:,1:21601] + min_mask
+    # plot(dtu15err, product='err', extent='ag')
+    # plot(dtu18err, product='err', extent='ag')
+    # plot(diff + min_mask, product='err')
+    dtu18mss, lats, lons = load_dtu('DTU18MSS_1min.nc', dtu_path, 'mss')
+    dtu15mss, lats, lons = load_dtu('DTU15MSS_1min.nc', dtu_path, 'mss')
+    # plot(dtu18mss[:,1:21601], product='geoid')
+    # plt.show()
+    # diff2 = dtu18mss[:,1:21601]  - dtu15mss[:,1:21601]
+    # print('dtu18-dtu15 min and max: ', np.nanmin(diff2), np.nanmax(diff2))
+    # plot(diff2, cmap='nipy_spectral', central_lon=180, up_bd=0.05, low_bd=-0.15, coastlines=True)
     
-    dtu18_mdt = read_surface('dtu18_eigen-6c4_do0280_rr0004.dat', mdts)
-    # plot(dtu18_mdt)
+
+    d_g = read_surface('dtu18_gtim5_do0280_rr0004.dat', mdts)
+    plot(d_g, extent='ag', product='mdt')
+    plt.show()
+    d_e = read_surface('dtu18_eigen-6c4_do0280_rr0004.dat', mdts)
+    plot(d_e, extent='ag', product='mdt')
+    plt.show()
+    multi = np.asarray([d_g, d_e])
+    multi_plot(multi, extent='gs', product='mdt')
     # plt.show()
-    dtu18_cs = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs.dat', cs)
-    # plot(dtu18_cs, product='cs')
-    # plt.show()
-    # plt.close()
-    # plot_projection(dtu18_cs, crs=ccrs.Geostationary())
 
-
-    arr1 = np.array(read_surface('dtu18_gtim5_do0100_rr0004.dat', mdts))
-    arr2 = np.array(read_surface('dtu18_gtim5_do0150_rr0004.dat', mdts))
-    arr3 = np.array(read_surface('dtu18_gtim5_do0200_rr0004.dat', mdts))
-    arr4 = np.array(read_surface('dtu18_gtim5_do0280_rr0004.dat', mdts))
-    arrs = np.asarray((arr1, arr2, arr3, arr4))
-    titles = ['Degree/order 100', 'Degree/order 150', 'Degree/order 200', 'Degree/order 280']
-    multi_plot(arrs, product='mdt', axtitles=titles)
-
-    arr5 = np.array(read_surface('dtu18_gtim5_do0280_rr0004.dat', mdts))
-    arr6 = np.array(read_surface('dtu18_eigen-6c4_do0280_rr0004.dat', mdts))
-    arrs2 = np.asarray((arr5, arr6))
-    titles2 = ['DTU18MSS-GTIM5 MDT (degree/order 280)', 'DTU18MSS-EIGEN6C4 MDT (degree/order 280)']
-    multi_plot(arrs2, product='mdt', axtitles=titles2)#, coastlines=True)
 
 if __name__ == '__main__':
     main()

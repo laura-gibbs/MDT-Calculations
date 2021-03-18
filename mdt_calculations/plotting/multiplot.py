@@ -31,6 +31,12 @@ def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
         cmap = 'RdBu_r'
         # cmap = 'jet'
         cticks_no = 9
+    elif product == 'err':
+        vmin = 0
+        vmax = 0.03
+        ticks = np.linspace(vmin, vmax, num=4)
+        dp = '{:.2f}'
+        cmap = 'gist_ncar'
     if extent is not None:
         if extent == 'gs':
             x0, x1 = -85, -60
