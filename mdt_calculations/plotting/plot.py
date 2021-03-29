@@ -57,14 +57,21 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
         if extent == 'gs':
             x0, x1 = -85, -60
             y0, y1 = 20, 45
-            no_ticks = 6
+            x_ticks = 6
+            y_ticks = 6
         elif extent == 'ag':
             x0, x1 = 0, 50
             y0, y1 = -10, -50
-            no_ticks = 6
+            x_ticks = 6
+            y_ticks = 6
+        elif extent == 'na':
+            x0, x1 = -80, -10
+            y0, y1 = 20, 70
+            x_ticks = 8
+            y_ticks = 6
         ax.set_extent((x0, x1, y0, y1), crs=crs)
-        ax.set_xticks(np.linspace(x0, x1, no_ticks), crs=crs)
-        ax.set_yticks(np.linspace(y0, y1, no_ticks), crs=crs)
+        ax.set_xticks(np.linspace(x0, x1, x_ticks), crs=crs)
+        ax.set_yticks(np.linspace(y0, y1, y_ticks), crs=crs)
     else:
         ax.set_xticks([-180, -135, -90, -45, 0, 45, 90, 135, 180], crs=crs)
         ax.set_yticks([-90, -60, -30, 0, 30, 60, 90], crs=crs)
@@ -114,13 +121,13 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
                 plt.gcf().text(0.8855, 0.858, 'm', fontsize=11)
             elif product == 'cs':
                 plt.gcf().text(0.869, 0.87, 'm/s', fontsize=11)
-        elif extent == 'ag':
+        elif extent == 'ag' or extent == 'na':
             fig.set_size_inches((9, 6))
             cbar = fig.colorbar(im, ax=ax, fraction=0.041, pad=0.15, ticks=ticks)
-            if product == 'mdt':
-                plt.gcf().text(0.8855, 0.858, 'm', fontsize=11)
-            elif product == 'cs':
-                plt.gcf().text(0.865, 0.89, 'm/s', fontsize=11)
+            # if product == 'mdt':
+            #     plt.gcf().text(0.8855, 0.858, 'm', fontsize=11)
+            # elif product == 'cs':
+            #     plt.gcf().text(0.865, 0.89, 'm/s', fontsize=11)
     cbar.ax.set_yticklabels([dp.format(tick) for tick in ticks])
     cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=labelsize)
     plt.tick_params(length=10, width=1, labelright='True')

@@ -1,2 +1,2 @@
-dtu18_gtim5_do0280_rr0004
+dtu18gtim5_gauss_250km
 4

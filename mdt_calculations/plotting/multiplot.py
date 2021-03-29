@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.colors as colors
 
 
-def multi_plot(surfaces, product='cs', extent=None, axtitles=None,
+def multi_plot(surfaces, product='mdt', extent=None, axtitles=None,
                coastlines=False, stacked=True):  # , subplot_titles=None):
     crs = ccrs.PlateCarree()
     panel = len(surfaces)

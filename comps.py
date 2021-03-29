@@ -150,7 +150,7 @@ def main():
 
     # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
 
-    min_mask = read_surface('mask_rr0060.dat', masks)
+    # min_mask = read_surface('mask_rr0060.dat', masks)
     # dtu15err, lats, lons = load_dtu('DTU15ERR_1min.err.nc', dtu_path, 'err')
     # dtu18err, lats, lons = load_dtu('DTU18ERR_1min.nc', dtu_path, 'err')
     # print('err min and max: ', np.nanmin(dtu15err), np.nanmax(dtu18err))
@@ -161,8 +161,8 @@ def main():
     # plot(dtu15err, product='err', extent='ag')
     # plot(dtu18err, product='err', extent='ag')
     # plot(diff + min_mask, product='err')
-    dtu18mss, lats, lons = load_dtu('DTU18MSS_1min.nc', dtu_path, 'mss')
-    dtu15mss, lats, lons = load_dtu('DTU15MSS_1min.nc', dtu_path, 'mss')
+    # dtu18mss, lats, lons = load_dtu('DTU18MSS_1min.nc', dtu_path, 'mss')
+    # dtu15mss, lats, lons = load_dtu('DTU15MSS_1min.nc', dtu_path, 'mss')
     # plot(dtu18mss[:,1:21601], product='geoid')
     # plt.show()
     # diff2 = dtu18mss[:,1:21601]  - dtu15mss[:,1:21601]
@@ -170,14 +170,14 @@ def main():
     # plot(diff2, cmap='nipy_spectral', central_lon=180, up_bd=0.05, low_bd=-0.15, coastlines=True)
     
 
-    d_g = read_surface('dtu18_gtim5_do0280_rr0004.dat', mdts)
-    plot(d_g, extent='ag', product='mdt')
+    d_g = read_surface('dtu18_gtim5_do0280_rr0004_cs.dat', cs)
+    plot(d_g, extent='gs', product='cs')
     plt.show()
-    d_e = read_surface('dtu18_eigen-6c4_do0280_rr0004.dat', mdts)
-    plot(d_e, extent='ag', product='mdt')
+    d_e = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs.dat', cs)
+    plot(d_e, extent='gs', product='cs')
     plt.show()
     multi = np.asarray([d_g, d_e])
-    multi_plot(multi, extent='gs', product='mdt')
+    # multi_plot(multi, extent='gs', product='mdt')
     # plt.show()
 
 
