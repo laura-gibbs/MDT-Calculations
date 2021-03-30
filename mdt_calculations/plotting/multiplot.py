@@ -6,6 +6,7 @@ from mdt_calculations.data_utils.utils import create_coords, get_res, bound_arr
 from mdt_calculations.data_utils.dat import read_surfaces
 import numpy as np
 import matplotlib.colors as colors
+from cartopy.feature import GSHHSFeature
 
 
 def multi_plot(surfaces, product='mdt', extent=None, axtitles=None,
@@ -41,15 +42,22 @@ def multi_plot(surfaces, product='mdt', extent=None, axtitles=None,
         if extent == 'gs':
             x0, x1 = -85, -60
             y0, y1 = 20, 45
-            no_ticks = 6
+            x_ticks = 6
+            y_ticks = 6
         elif extent == 'ag':
             x0, x1 = 0, 50
             y0, y1 = -10, -50
-            no_ticks = 6
+            x_ticks = 6
+            y_ticks = 6
+        elif extent == 'na':
+            x0, x1 = -80, -10
+            y0, y1 = 20, 70
+            x_ticks = 8
+            y_ticks = 6
     else:
         x0, x1 = -180, 180
         y0, y1 = -90, 90
-        no_ticks = 9
+        x_ticks = 9
         y_ticks = 7
     if panel == 2:
         if extent is None:
@@ -93,14 +101,17 @@ def multi_plot(surfaces, product='mdt', extent=None, axtitles=None,
         if axtitles is not None:
             axs[i].set_title(axtitles[i])
         axs[i].set_extent((x0, x1, y0, y1), crs=crs)
-        axs[i].set_xticks(np.linspace(x0, x1, no_ticks), crs=crs)
+        axs[i].set_xticks(np.linspace(x0, x1, x_ticks), crs=crs)
         axs[i].set_yticks(np.linspace(y0, y1, y_ticks), crs=crs)
         lat_formatter = LatitudeFormatter()
         lon_formatter = LongitudeFormatter()
         axs[i].xaxis.set_major_formatter(lon_formatter)
         axs[i].yaxis.set_major_formatter(lat_formatter)
+        axs[i].tick_params(axis='both', which='major', labelsize=9)
+        # axs[i].tick_params(axis='both', which='minor', labelsize=8)
         if coastlines:
-            axs[i].coastlines(linewidth=0.5)
+            for ax in axs:
+                ax.add_feature(GSHHSFeature(scale='intermediate', facecolor='lightgrey', linewidth=0.2))
     # Delete the unwanted axes
     # for i in [7,8]:
     #     fig.delaxes(axs[i])
@@ -108,6 +119,7 @@ def multi_plot(surfaces, product='mdt', extent=None, axtitles=None,
                         wspace=wspace, hspace=hspace)
     # cbar_ax = fig.add_axes([0.1, 0.04, 0.8, 0.02])
     cbar_ax = fig.add_axes([0.1, 0.04, 0.8, cbarwidth])
+    cbar_ax.tick_params(labelsize=7)
     cbar = fig.colorbar(cs, cax=cbar_ax, ticks=cticks, orientation='horizontal')
     # plt.suptitle('GOCE GTIM5 Geoid')
     plt.show()

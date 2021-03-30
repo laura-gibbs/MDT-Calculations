@@ -84,7 +84,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     # if land_feature:
     #     ax.add_feature(cfeature.LAND)
     if coastlines:
-        ax.add_feature(GSHHSFeature(scale='intermediate'))
+        ax.add_feature(GSHHSFeature(scale='intermediate', facecolor='lightgrey', linewidth=0.2))
         # ax.coastlines()
     if product == 'mdt':
         if bds == 1.5:
@@ -113,7 +113,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             plt.gcf().text(0.882, 0.858, 'm/s', fontsize=14)
     else:
         labelsize = 8
-        ticksize = 11
+        ticksize = 9
         if extent=='gs':
             fig.set_size_inches((8, 7))
             cbar = fig.colorbar(im, ax=ax, fraction=0.041, pad=0.15, ticks=ticks)
@@ -129,7 +129,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             # elif product == 'cs':
             #     plt.gcf().text(0.865, 0.89, 'm/s', fontsize=11)
     cbar.ax.set_yticklabels([dp.format(tick) for tick in ticks])
-    cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=labelsize)
+    cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=7)
     plt.tick_params(length=10, width=1, labelright='True')
     plt.tick_params(axis='x', pad=8)
     plt.tick_params(axis='y', pad=3)
@@ -152,7 +152,7 @@ def plot_projection(arr, crs, vmin=0, vmax=2, cmap='turbo'):
     fig.set_size_inches((20, 10.25))
     cbar = fig.colorbar(im, ax=ax, fraction=0.0235, pad=0.06, ticks=np.linspace(vmin, vmax, num=6))
     # cbar.ax.set_yticklabels([dp.format(tick) for tick in ticks])
-    cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=11)
+    cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=7)
     plt.tick_params(length=10, width=1, labelright='True')
     plt.tick_params(axis='x', pad=8)
     plt.tick_params(axis='y', pad=3)
