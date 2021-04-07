@@ -20,6 +20,27 @@ EXTENTS = {
 }
 
 
+def boxcar_plot():
+    # create empty signal
+    x = np.zeros(270)
+
+    # set middle as boxcar window
+    x[90:180] = 1
+
+    # create boxcar window
+    z = np.ones(90)
+
+    # iteratively apply boxcar window
+    y = [x]
+    for i in range(3):
+        y.append(np.convolve(y[i], z, mode='same') / len(z))
+
+    # plot all signals
+    for i in range(len(y)):
+        plt.plot(y)
+    
+    plt.show()
+
 def norm(a):
     return (a - a.min()) / (a.max() - a.min())
 
@@ -33,7 +54,7 @@ def extract_region(mdt, lon_range, lat_range, central_lon=0, central_lat=0):
     return mdt[py[0]:py[1], px[0]:px[1]]
 
 
-def pmf(arr, iterations=350, k=.16, g=0.01, option=2, suppress=True):
+def pmf(arr, iterations=350, k=.16, g=0.02, option=2, suppress=True):
     pmf_arr = []
     its = []
     for i in range(iterations):
@@ -89,7 +110,8 @@ def generate_window(name, size):
         return np.outer(np.hanning(size), np.hanning(size))
 
 
-def apply_filter(arr, window):
+def apply_filter(arr, name, size):
+    window = generate_window(name, size)
     # convolve filter window with arr
     arr = convolve(arr, window)
     # divide output by filter sum to enforce weighted average
@@ -108,10 +130,19 @@ def main():
     mask_4 = read_surface('mask_rr0004.dat', masks)
     fig_dir = 'figs/mdt_plots/dtu18_gtim5_filtered/'
 
-    dtu18_gtim5 = read_surface('sh_mdt_DTU18_GTIM5_L280.dat', mdts)
-    # dtu18_gtim5[np.isnan(dtu18_gtim5)] = 0
+    dtu18_gtim5_4 = read_surface('sh_mdt_DTU18_GTIM5_L280.dat', mdts)
+    dtu18_gtim5 = read_surface('dtu18_gtim5_do0280_rr0008.dat', mdts)
+    # dtu18_gtim5 = resize(dtu18_gtim5, (1440, 2880), order=3)
+    dtu18_gtim5[np.isnan(dtu18_gtim5)] = 0
     # dtu18_gtim5 = np.clip(dtu18_gtim5, -1.4, 1.4)
     # dtu18_gtim5 = norm(dtu18_gtim5)
+
+    # filt8 = apply_filter(dtu18_gtim5_4, 'boxcar', 8)
+    # filt12 = apply_filter(dtu18_gtim5_4, 'boxcar', 12)
+    # filt16 = apply_filter(dtu18_gtim5_4, 'boxcar', 16)
+    # filt20 = apply_filter(dtu18_gtim5_4, 'boxcar', 20)
+    # multi_plot([filt8, filt12, filt16, filt20], extent='na', coastlines=True)
+
 
     cls_mdt = read_surface('cls18_mdt.dat', mdts)
     cls_mdt[np.isnan(cls_mdt)] = 0
@@ -125,21 +156,29 @@ def main():
     # nemo_downscaled = np.clip(nemo_downscaled, -1.4, 1.4)
     # nemo_downscaled = norm(nemo_downscaled)
 
-    # Gaussian filter
+    # # Gaussian filter
     filter_widths = []
     gauss_mdts = []
     gauss_mdt_plots = []
     for i in range(32):
         k = (i+1)/4
-        mdt = gaussian_filter(dtu18_gtim5, sigma=k) + mask_4
+        mdt = gaussian_filter(dtu18_gtim5, sigma=k)
         mdt[np.isnan(mdt)] = 0
         gauss_mdts.append(mdt)
         r = int((int((4*k)+0.5))/4 * 111)
         filter_widths.append(r)
         if r in (138, 249, 360, 471):
-            resized_mdt = resize(mdt, (1440, 2880), order=3)
-            gauss_mdt_plots.append(resized_mdt)
+            # resized_mdt = resize(mdt, (1440, 2880), order=3)
+            gauss_mdt_plots.append(mdt)
     # multi_plot(gauss_mdt_plots, extent='na', coastlines=True)
+
+    res1 = dtu18_gtim5 - gauss_mdt_plots[0]
+    res2 = dtu18_gtim5 - gauss_mdt_plots[1]
+    res3 = dtu18_gtim5 - gauss_mdt_plots[2]
+    res4 = dtu18_gtim5 - gauss_mdt_plots[3]
+
+    multi_plot([res1, res2, res3, res4], product='resid', extent='na', coastlines=True)
+    plt.show()
 
     # Plot Gaussian filter widths: for r = 5, 9, 13, 17
     # gauss_plots = []
@@ -152,33 +191,79 @@ def main():
         # plt.close()
 
     
-    # Load gaussian filtered currents
-    gauss_cs = []
-    gauss_cs_plots = []
-    for i in range(32):
-        k = (i+1)/4
-        r = int((int((4*k)+0.5))/4 * 111)
-        cs = read_surface(f'dtu18_gtim5_gauss_{r}km_cs.dat', gauss_cs_path)
-        cs[np.isnan(cs)] = 0
-        gauss_cs.append(cs)
-        if r in (138, 249, 360, 471):
-            resized_cs = resize(cs, (1440, 2880), order=3) + mask
-            # plot(resized_cs, product='cs', extent='na')
-            # plt.show()
-            gauss_cs_plots.append(resized_cs)
-            # plt.close()
+    # # Load gaussian filtered currents
+    # gauss_cs = []
+    # gauss_cs_plots = []
+    # for i in range(32):
+    #     k = (i+1)/4
+    #     r = int((int((4*k)+0.5))/4 * 111)
+    #     cs = read_surface(f'dtu18_gtim5_gauss_{r}km_cs.dat', gauss_cs_path)
+    #     cs[np.isnan(cs)] = 0
+    #     gauss_cs.append(cs)
+    #     if r in (138, 249, 360, 471):
+    #         resized_cs = resize(cs, (1440, 2880), order=3) + mask
+    #         gauss_cs_plots.append(resized_cs)
+
     
     # multi_plot(gauss_cs_plots, product='cs', extent='na', coastlines=True)
-    # test = read_surface('dtu18_gtim5_pmf_350i_16k_01g_cs.dat', cs_path)
-    # test = resize(test, (1440, 2880), order=3) + mask
-    # plot(test, product='cs', extent='na')
+    # multi_plot(gauss_cs_plots, product='cs', extent='na', coastlines=True)
+
+    # pmf_0 = read_surface('dtu18_gtim5_land0_pmf_300i_16k_02g.dat', mdts)
+    # pmf_1 = read_surface('dtu18_gtim5_land0_pmf_500i_16k_02g.dat', mdts)
+    # pmf_2 = read_surface('dtu18_gtim5_land0_pmf_700i_16k_02g.dat', mdts)
+    # pmf_3 = read_surface('dtu18_gtim5_land0_pmf_900i_16k_02g.dat', mdts)
+
+    # pmf_0[np.isnan(pmf_0)] = 0
+    # pmf_1[np.isnan(pmf_1)] = 0
+    # pmf_2[np.isnan(pmf_2)] = 0
+    # pmf_3[np.isnan(pmf_3)] = 0
+    # pmf_0 = resize(pmf_0, (1440, 2880), order=3)
+    # pmf_1 = resize(pmf_1, (1440, 2880), order=3)
+    # pmf_2 = resize(pmf_2, (1440, 2880), order=3)
+    # pmf_3 = resize(pmf_2, (1440, 2880), order=3)
+
+    # multi_plot([pmf_0, pmf_1, pmf_2, pmf_3], product='mdt', extent='na', coastlines=True)
     # plt.show()
+    
 
     # PMF Filter
-    pmf_mdts, iterations = pmf(dtu18_gtim5)
+    pmf_mdts, iterations = pmf(dtu18_gtim5, iterations=900)
     extent = 'na'
-    # write_surface('dtu18_gtim5_pmf_350i_16k_01g.dat', pmf_mdts[349], mdts)
-    
+    # write_surface('dtu18_gtim5_land0_pmf_30i_16k_05g.dat', pmf_mdts[29], mdts)
+    # write_surface('dtu18_gtim5_land0_pmf_50i_16k_05g.dat', pmf_mdts[49], mdts)# overwrite=True)
+    # write_surface('dtu18_gtim5_land0_pmf_70i_16k_05g.dat', pmf_mdts[69], mdts)# overwrite=True)
+    # write_surface('dtu18_gtim5_land0_pmf_90i_16k_05g.dat', pmf_mdts[89], mdts)# overwrite=True)
+
+    res1 = dtu18_gtim5 - pmf_mdts[299]
+    res2 = dtu18_gtim5 - pmf_mdts[499]
+    res3 = dtu18_gtim5 - pmf_mdts[699]
+    res4 = dtu18_gtim5 - pmf_mdts[899]
+
+    multi_plot([res1, res2, res3, res4], product='resid', extent='na', coastlines=True)
+    plt.show()
+
+    # get pmf from interior na
+    pmf_regions = [extract_region(pmf_mdt, (-60,-40), (10,30)) for pmf_mdt in pmf_mdts] 
+
+    # rmse between pmf and gaussian[25] same extent
+    g_region = extract_region(gauss_mdts[25], (-60,-40), (10,30))
+
+    rmses = []
+    for pmf_region in pmf_regions:
+        rmses.append(np.sqrt(np.nanmean(((g_region - pmf_region)**2))))
+
+    plt.plot(iterations, rmses)
+    plt.grid(b=True, which='major', color='#888888', linestyle='-')
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)  
+    # plt.xlim([100, 600])
+    plt.minorticks_on()
+    # plt.ylim([-0.05, 0.5])
+    # plt.title('')
+    plt.xlabel('Iterations')
+    plt.ylabel('RMSE (m)')
+    # plt.yscale("log")
+    plt.show()
+
     # Original MDT
     plot(resize(dtu18_gtim5, (1440, 2880), order=3) + mask, product='mdt', extent=extent, coastlines=True)
     plt.show()

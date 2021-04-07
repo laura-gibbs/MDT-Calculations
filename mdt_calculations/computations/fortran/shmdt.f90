@@ -103,8 +103,8 @@
       read(21)mask
       close(21)
   
-      gmdt(:,:)=gmdt(:,:)+mask(:,:)
-      gcs(:,:)=gcs(:,:)+mask(:,:)
+      gmdt(:,:)=gmdt(:,:)!+mask(:,:)
+      gcs(:,:)=gcs(:,:)!+mask(:,:)
 !-------------------------------------------------
 
 !-------------------------------------------------
@@ -234,6 +234,11 @@
 !     Calculate the coriolis parameter 
 !------------------------------------------------
       do j=1,JJ
+            if(lat(j)<15 .AND. lat(j)>0)then
+                  lat(j)=15
+            else if (lat(j)>-15 .AND. lat(j)<0)then
+                  lat(j)=-15
+            end if
          f0(j) = 2.0*omega*sin(torad*lat(j))
       end do
 !------------------------------------------------

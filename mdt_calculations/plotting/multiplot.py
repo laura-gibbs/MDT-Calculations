@@ -16,28 +16,31 @@ def multi_plot(surfaces, product='mdt', extent=None, axtitles=None,
     central_lon = 0
     cbarwidth = 0.02
     y_ticks = 7
+    cmap = 'turbo'
     if product == 'mdt':
         vmin = -1.4
         vmax = 1.4
-        cmap = 'turbo'
         cticks_no = 15
     elif product == 'cs':
         vmin = 0
         vmax = 2
-        cmap = 'turbo'
         cticks_no = 9
     elif product == 'geoid':
         vmin = -100
         vmax = 100
         cmap = 'RdBu_r'
-        # cmap = 'jet'
         cticks_no = 9
     elif product == 'err':
         vmin = 0
         vmax = 0.03
-        ticks = np.linspace(vmin, vmax, num=4)
+        cticks_no = np.linspace(vmin, vmax, num=4)
         dp = '{:.2f}'
         cmap = 'gist_ncar'
+    elif product == 'resid':
+        vmin = -0.2
+        vmax = 0.2
+        cticks_no = 9
+        dp = '{:.2f}'
     if extent is not None:
         if extent == 'gs':
             x0, x1 = -85, -60

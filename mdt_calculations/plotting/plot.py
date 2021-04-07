@@ -28,7 +28,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             vmax = bds
         elif product == 'cs':
             vmin = 0
-            vmax = 2
+            vmax = bds
         elif product == 'geoid':
             vmin = -100
             vmax = 100
