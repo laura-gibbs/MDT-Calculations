@@ -11,6 +11,7 @@ from cartopy.feature import GSHHSFeature
 def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
          land_feature=False, title=None, product='mdt', extent=None,
          lats=None, lons=None, low_bd=None, up_bd=None, log=False):
+    arr = np.flipud(arr)
     if lats is None and lons is None:
         lons, lats = create_coords(get_res(arr), central_lon=central_lon)
     crs = ccrs.PlateCarree(central_longitude=central_lon)

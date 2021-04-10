@@ -27,7 +27,7 @@ def parse_mdt(filename):
 
 
 def read_surface(filename, path=None, fortran=True, nans=True,
-                 transpose=True):
+                 transpose=False, rotate=True):
     r"""Reshapes surface from 1d array into an array of
     (II, JJ) records.
 
@@ -61,6 +61,8 @@ def read_surface(filename, path=None, fortran=True, nans=True,
         floats[floats <= -1.7e7] = np.nan
     if transpose:
         return floats.T
+    if rotate:
+        return np.rot90(floats, 1)
 
     return floats
 
