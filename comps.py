@@ -9,6 +9,12 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset as netcdf_dataset
+from PIL import Image
+import glob
+import random
+import math
+from scipy.fft import fft2, ifft2, fftfreq, fftn, ifftn
+from matplotlib.colors import LogNorm
 
 
 def calc_mean(txt_file, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bool=False, write=False):
@@ -90,6 +96,49 @@ def compute_sd(arr, fig_dir, dat_dir, prod_name, plot_bool=False, write=False):
     return total_mean, total_std
 
 
+def pad_rgba(im, pad):
+    return np.concatenate(
+        (
+            np.pad(im[:, :, :3], ((pad, pad), (pad, pad), (0, 0)), constant_values=0),
+            np.pad(im[:, :, 3:], ((pad, pad), (pad, pad), (0, 0)), constant_values=255)
+        ),
+        axis=-1
+    )
+
+
+def savegrid(ims, rows=12, cols=12, pad=1):
+    # get number of images and the square root (corresponding to grid size, e.g. 144 > 12 x 12)
+    N = len(ims)
+    Nw = int(math.sqrt(N))
+
+    # shuffle images
+    random.shuffle(ims)
+    ims = np.array([np.array(im) for im in ims])
+    # ims = np.array([pad_rgba(ims[i], pad) for i in range(N)])
+    size = ims.shape[1]
+    # big_im = np.zeros((size * Nw, size * Nw, 4), dtype=np.uint8)
+    # for i in range(Nw):
+    #     for j in range(Nw):
+    #         big_im[i * size: (i + 1) * size, j * size: (j + 1) * size] = ims[i * Nw + j]
+    # big_im = pad_rgba(big_im, 1)
+
+
+    big_im = np.zeros(((size + pad) * Nw + pad, (size + pad) * Nw + pad, 4), dtype=np.uint8)
+    big_im[:, :, 3] = 255
+    for i in range(Nw):
+        for j in range(Nw):
+            big_im[
+                pad + i * (size + pad): (i + 1) * (size + pad),
+                pad + j * (size + pad): (j + 1) * (size + pad)
+            ] = ims[i * Nw + j]
+
+    ax = plt.subplot(111)
+    ax.set_axis_off()
+    ax.imshow(big_im)
+    plt.show()
+    return big_im
+
+
 def easy_plot(dat_file, dat_path, product, bds, figs_dir, figname, log=True):
     surface = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
     fig = plot(surface, bds=bds, product=product)
@@ -150,51 +199,11 @@ def main():
 
     # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
 
-    # min_mask = read_surface('mask_rr0060.dat', masks)
-    # dtu15err, lats, lons = load_dtu('DTU15ERR_1min.err.nc', dtu_path, 'err')
-    # dtu18err, lats, lons = load_dtu('DTU18ERR_1min.nc', dtu_path, 'err')
-    # print('err min and max: ', np.nanmin(dtu15err), np.nanmax(dtu18err))
-    # print('err min and max: ', np.nanmin(dtu18err), np.nanmax(dtu18err))
-    # diff = dtu15err[:,1:21601] - dtu18err[:,1:21601]
-    # dtu15err = dtu15err[:,1:21601] + min_mask
-    # dtu18err = dtu18err[:,1:21601] + min_mask
-    # plot(dtu15err, product='err', extent='ag')
-    # plot(dtu18err, product='err', extent='ag')
-    # plot(diff + min_mask, product='err')
-    # dtu18mss, lats, lons = load_dtu('DTU18MSS_1min.nc', dtu_path, 'mss')
-    # dtu15mss, lats, lons = load_dtu('DTU15MSS_1min.nc', dtu_path, 'mss')
-    # plot(dtu18mss[:,1:21601], product='geoid')
-    # plt.show()
-    # diff2 = dtu18mss[:,1:21601]  - dtu15mss[:,1:21601]
-    # print('dtu18-dtu15 min and max: ', np.nanmin(diff2), np.nanmax(diff2))
-    # plot(diff2, cmap='nipy_spectral', central_lon=180, up_bd=0.05, low_bd=-0.15, coastlines=True)
     
-    # d_e = read_surface('dtu18_GO_CONS_GCF_2_TIM_R3_do0250_rr0004.dat', mdts)
+    # d_e = read_surface('dtu18_GO_CONS_GCF_2_DIR_R6_do0300_rr0004.dat', mdts)
     # plot(d_e, product='mdt')#, coastlines=True)
     # plt.show()
-    # d_e = read_surface('dtu18_GO_CONS_GCF_2_TIM_R4_do0250_rr0004.dat', mdts)
-    # plot(d_e, product='mdt')#, coastlines=True)
-    # plt.show()
-    # d_e = read_surface('dtu18_GO_CONS_GCF_2_TIM_R5_do0280_rr0004.dat', mdts)
-    # plot(d_e, product='mdt')#, coastlines=True)#, central_lon=180)
-    # plt.show()
-    # d_e = read_surface('dtu18_GO_CONS_GCF_2_TIM_R6_do0300_rr0004.dat', mdts)
-    # plot(d_e, product='mdt')#, coastlines=True)
-    # plt.show()
-    d_e = read_surface('dtu18_GO_CONS_GCF_2_DIR_R6_do0300_rr0004.dat', mdts)
-    plot(d_e, product='mdt')#, coastlines=True)
-    plt.show()
-    d_e = read_surface('dtu18_GO_CONS_GCF_2_DIR_R5_do0300_rr0004.dat', mdts)
-    plot(d_e, product='mdt')#, coastlines=True)#, central_lon=180)
-    plt.show()
-    plt.close()
-    d_e = read_surface('dtu18_GO_CONS_GCF_2_DIR_R4_do0260_rr0004.dat', mdts)
-    plot(d_e, product='mdt')#, coastlines=True)
-    plt.show()
-    d_e = read_surface('dtu18_GO_CONS_GCF_2_DIR_R3_do0240_rr0004.dat', mdts)
-    plot(d_e, product='mdt')#, coastlines=True)
-    plt.show()
-    
+
     # d_f = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs_band20.dat', cs)
     # plot(d_f, product='cs', bds=2, extent='na', coastlines=True)
     # plt.show()
@@ -204,6 +213,28 @@ def main():
     # multi = np.asarray([d_g, d_e])
     # multi_plot(multi, extent='gs', product='mdt')
     # plt.show()
+
+    cm = plt.get_cmap('turbo')
+    img_src = Image.open('saved_tiles/training/tiles_old/0_tile(10, 10).png').convert('L')
+    img = np.array(img_src)
+    img = cm(img)
+    img = np.uint8(img * 255)
+    img = Image.fromarray(img)
+    # img.save('training_tile.png')
+
+    # grab 244 
+    img_paths = glob.glob('saved_tiles/testing/tiles_old/*.png')
+    imgs = []
+    
+    for img_path in img_paths:
+        img = Image.open(img_path).convert('L')
+        img = np.array(img)
+        img = cm(img)
+        img = np.uint8(img * 255)
+        img = Image.fromarray(img)
+        imgs.append(img)
+    imgs = imgs[:144]
+    # savegrid(imgs)
 
 
 if __name__ == '__main__':
