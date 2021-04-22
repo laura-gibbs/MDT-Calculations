@@ -44,10 +44,10 @@ def save_img(arr, name, arr_name, training=True):
     rescaled = (255.0 / np.nanmax(arr) * (arr - np.nanmin(arr))).astype(np.uint8)
     im = Image.fromarray(rescaled, mode='L')
     subdir = 'training/' if training else 'testing/'
-    im.save('saved_tiles/' + subdir + 'tiles/' + arr_name+ '_' +name+'.png', mode='L')
+    im.save('saved_tiles/' + subdir + 'tiles_32/' + arr_name+ '_' +name+'.png', mode='L')
 
 
-def extract_overlapping_regions(arr, lat_range, tile_size=10, overlap=5):
+def extract_overlapping_regions(arr, lat_range, tile_size=8, overlap=4):
     # lat_range is a tuple
     x_tiles = 360//(tile_size - overlap)
     y_tiles = (lat_range[1]-lat_range[0])//(tile_size - overlap)
@@ -73,26 +73,32 @@ cs_path = "../a_mdt_data/computations/currents/"
 masks = '../a_mdt_data/computations/masks/'
 mask = read_surface('mask_rr0004.dat', masks)
 training_fnames = [
-    'dtu18_GO_CONS_GCF_2_DIR_R5_do0280_rr0004_cs.dat',
-    'dtu18_GO_CONS_GCF_2_TIM_R6_do0280_rr0004_cs.dat',
-    'dtu18_GO_CONS_GCF_2_SPW_R5_do0280_rr0004_cs.dat',
-    'dtu18_GO_CONS_GCF_2_SPW_R4_do0280_rr0004_cs.dat',
-    'dtu18_goco05s_do0280_rr0004_cs.dat',
-    'dtu18_GO_CONS_GCF_2_DIR_R6_do0280_rr0004_cs.dat',
-    'dtu18_GO_CONS_GCF_2_TIM_R5_do0280_rr0004_cs.dat',
-    'dtu18_GO_CONS_GCF_2_SPW_R2_do0240_rr0004_cs.dat',
-    'dtu18_eigen-6c4_do0280_rr0004_cs.dat',
-    'dtu18_egm2008_do0280_rr0004_cs.dat',
-    'dtu18_GTIM_R6e_do0280_rr0004_cs.dat',
-    'dtu18_geco_do0280_rr0004_cs.dat',
-    'dtu18_GGM05c_do0280_rr0004_cs.dat',
-    'dtu18_GAO2012_do0280_rr0004_cs.dat',
-    'dtu18_IfE_GOCE05s_do0250_rr0004_cs.dat',
-    'dtu18_IGGT_R1_do0240_rr0004_cs.dat',
+    'dtu18_GO_CONS_GCF_2_DIR_R5_do0280_rr0004_cs.dat',  #300
+    'dtu18_GO_CONS_GCF_2_TIM_R6_do0280_rr0004_cs.dat',  #300
+    'dtu18_GO_CONS_GCF_2_SPW_R5_do0280_rr0004_cs.dat',  #330
+    'dtu18_GO_CONS_GCF_2_SPW_R4_do0280_rr0004_cs.dat',  #280
+    'dtu18_goco06s_do0280_rr0004_cs.dat',               #300
+    'dtu18_GO_CONS_GCF_2_DIR_R6_do0280_rr0004_cs.dat',  #300
+    'dtu18_GO_CONS_GCF_2_TIM_R5_do0280_rr0004_cs.dat',  #280
+    'dtu18_GO_CONS_GCF_2_SPW_R2_do0240_rr0004_cs.dat',  #240
+    'dtu18_GTIM5_R6e_do0280_rr0004_cs.dat',             #300
+    'dtu18_eigen-6c4_do0280_rr0004_cs.dat',             #2190
+    'dtu18_egm2008_do0280_rr0004_cs.dat',               #2190
+    'dtu18_geco_do0280_rr0004_cs.dat',                  #2190
+    # 'dtu18_IGGT_R1_do0240_rr0004_cs.dat',               #240
+    # 'dtu18_IfE_GOCE05s_do0250_rr0004_cs.dat',           #250
+    'dtu18_GGM05c_do0280_rr0004_cs.dat',                #360
+    'dtu18_GAO2012_do0280_rr0004_cs.dat',               #360
+    # additional
+    # 'dtu18_XGM2019e_2159_do0280_rr0004_cs.dat',         #2190
+    # 'dtu18_SGG-UGM-1_do0280_rr0004_cs.dat',             #2159
+    # 'dtu18_EIGEN-6C3stat_do0280_rr0004_cs.dat',        #1949
+    # 'dtu18_EIGEN-6C2_do0280_rr0004_cs.dat'            #1949
+
 ]
 
 testing_fnames = [
-    'dtu18_goco05s_do0280_rr0004_cs.dat',
+    'dtu18_goco05s_do0280_rr0004_cs.dat',               #280
 ]
 
 for i, fname in enumerate(training_fnames):
@@ -102,7 +108,7 @@ for i, fname in enumerate(training_fnames):
     cs = norm(bound_arr(cs + mask, 0, 2))
     # plt.imshow(cs)
     # plt.show()
-    regions, tile_pts = extract_overlapping_regions(cs, (-55, 55))
+    regions, tile_pts = extract_overlapping_regions(cs, (-64, 64))
     for region, tile_pt in zip(regions, tile_pts):
         save_img(region, 'tile'+str(tile_pt), str(i), training=True)
 
@@ -113,6 +119,6 @@ for i, fname in enumerate(testing_fnames):
     cs = norm(bound_arr(cs + mask, 0, 2))
     # plt.imshow(cs)
     # plt.show()
-    regions, tile_pts = extract_overlapping_regions(cs, (-55, 55))
+    regions, tile_pts = extract_overlapping_regions(cs, (-64, 64))
     for region, tile_pt in zip(regions, tile_pts):
         save_img(region, 'tile'+str(tile_pt), str(i), training=False)
