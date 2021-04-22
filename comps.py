@@ -215,15 +215,15 @@ def main():
     # plt.show()
 
     cm = plt.get_cmap('turbo')
-    img_src = Image.open('saved_tiles/training/tiles_old/0_tile(10, 10).png').convert('L')
+    img_src = Image.open('figs/x_ML/Quilting/random.png').convert('L')
     img = np.array(img_src)
     img = cm(img)
     img = np.uint8(img * 255)
     img = Image.fromarray(img)
-    # img.save('training_tile.png')
+    img.save('figs/x_ML/Quilting/random_turbo.png')
 
     # grab 244 
-    img_paths = glob.glob('saved_tiles/testing/tiles_old/*.png')
+    img_paths = glob.glob('saved_tiles/training/tiles_32/*.png')
     imgs = []
     
     for img_path in img_paths:
