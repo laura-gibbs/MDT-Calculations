@@ -106,13 +106,13 @@ def pad_rgba(im, pad):
     )
 
 
-def savegrid(ims, rows=12, cols=12, pad=1):
+def savegrid(ims, rows=12, cols=12, pad=1, shuffle=True):
     # get number of images and the square root (corresponding to grid size, e.g. 144 > 12 x 12)
     N = len(ims)
     Nw = int(math.sqrt(N))
-
-    # shuffle images
-    random.shuffle(ims)
+    
+    if shuffle:
+        random.shuffle(ims)
     ims = np.array([np.array(im) for im in ims])
     # ims = np.array([pad_rgba(ims[i], pad) for i in range(N)])
     size = ims.shape[1]
@@ -215,26 +215,28 @@ def main():
     # plt.show()
 
     cm = plt.get_cmap('turbo')
-    img_src = Image.open('figs/x_ML/Quilting/random.png').convert('L')
+    img_src = Image.open('quilting/s64/cut-b64-n10-o16-N100.png').convert('L')
     img = np.array(img_src)
     img = cm(img)
     img = np.uint8(img * 255)
     img = Image.fromarray(img)
-    img.save('figs/x_ML/Quilting/random_turbo.png')
+    img.save('quilting/s64/cut-b64-n10-o16-N100_turbo.png')
 
-    # grab 244 
-    img_paths = glob.glob('saved_tiles/training/tiles_32/*.png')
-    imgs = []
+    # # Grab 244 
+    # img_paths = glob.glob('../PyTorch-VAE/savedtiles/wae_mmd_rbf/WAE_MMD1_s64_0/*.png')
+    # imgs = []
     
-    for img_path in img_paths:
-        img = Image.open(img_path).convert('L')
-        img = np.array(img)
-        img = cm(img)
-        img = np.uint8(img * 255)
-        img = Image.fromarray(img)
-        imgs.append(img)
-    imgs = imgs[:144]
-    # savegrid(imgs)
+    # for img_path in img_paths:
+    #     img = Image.open(img_path).convert('L')
+    #     img = np.array(img)
+    #     img = cm(img)
+    #     img = np.uint8(img * 255)
+    #     img = Image.fromarray(img)
+    #     imgs.append(img)
+    #     print('imgs:', len(imgs))
+    # imgs = imgs[:144]
+    # print('imgs:', len(imgs))
+    # savegrid(imgs, shuffle=False)
 
 
 if __name__ == '__main__':

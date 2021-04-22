@@ -7,6 +7,7 @@ from PIL import Image
 import argparse
 import os
 import glob
+import random
 
 
 def randomPatch(texture, block_size):
@@ -49,11 +50,12 @@ def L2OverlapDiff(patch, block_size, overlap, res, y, x):
 
 def randomBestPatch(textures, block_size, overlap, res, y, x):
     h, w, c = textures[0].shape
-    errors = np.zeros((block_size // 2, block_size // 2))
+    N = 100
+    errors = np.zeros((N, N))
 
-    random_textures = np.empty((block_size // 2, block_size // 2, block_size, block_size, c))
-    for i in range(block_size // 2):
-        for j in range(block_size // 2):
+    random_textures = np.empty((N, N, block_size, block_size, c))
+    for i in range(N):
+        for j in range(N):
             patch = textures[np.random.randint(0, len(textures)), :block_size, :block_size]
             # patch = patch[i:i+block_size, j:j+block_size]
             e = L2OverlapDiff(patch, block_size, overlap, res, y, x)
@@ -112,15 +114,15 @@ def minCutPatch(patch, block_size, overlap, res, y, x):
     return patch
 
 
-def quilt(image_path, block_size, num_block, mode, sequence=False):
+def quilt(filenames, block_size, num_block, mode, sequence=False):
     textures = np.stack([
-        util.img_as_float32(Image.open(path)) for path in glob.glob(os.path.join(image_path, '*.png'))
+        util.img_as_float32(Image.open(path)) for path in filenames
     ])
 
     if textures.ndim < 4:
         textures = np.expand_dims(textures, -1)
 
-    overlap = block_size // 2
+    overlap = block_size // 4
     num_blockHigh, num_blockWide = num_block
 
     h = (num_blockHigh * block_size) - (num_blockHigh - 1) * overlap
@@ -158,13 +160,18 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--path", required=True, type=str, help="path to images")
     parser.add_argument("-b", "--block_size", type=int, default=32, help="block size in pixels")
     parser.add_argument("-n", "--num_block", type=int, default=10, help="number of blocks you want")
+    parser.add_argument("-i", "--iterations", type=int, default=1, help="number of iterations")
     parser.add_argument("-m", "--mode", type=str, default='Cut', help="which mode --random placement of block(Random)/Neighbouring blocks constrained by overlap(Best)/Minimum error boundary cut(Cut)")
     args = parser.parse_args()
 
-    np.random.seed(0)
+    # np.random.seed(0)
     path = args.path
     block_size = args.block_size
     num_block = args.num_block
     mode = args.mode
-    image = quilt(path, block_size, (num_block, num_block), mode)
-    image.save(f'{args.mode.lower()}-n{args.num_block}.png')
+    iterations = args.iterations
+    filenames = glob.glob(os.path.join(path, '*.png'))
+    for i in range(iterations):
+        print(i)
+        image = quilt(random.sample(filenames, 1000), block_size, (num_block, num_block), mode)
+        image.save(f'./WAE_MMD2_32deg/{args.mode.lower()}-b{args.block_size}-n{args.num_block}_' + str(i) + '.png')
