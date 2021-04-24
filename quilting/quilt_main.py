@@ -171,7 +171,7 @@ if __name__ == "__main__":
     mode = args.mode
     iterations = args.iterations
     filenames = glob.glob(os.path.join(path, '*.png'))
-    for i in range(iterations):
+    for i in range(646, 3000):
         print(i)
         image = quilt(random.sample(filenames, 1000), block_size, (num_block, num_block), mode)
-        image.save(f'./WAE_MMD2_32deg/{args.mode.lower()}-b{args.block_size}-n{args.num_block}_' + str(i) + '.png')
+        image.save(f'./DCGAN_32deg/{args.mode.lower()}-b{args.block_size}-n{args.num_block}_' + str(i) + '.png')

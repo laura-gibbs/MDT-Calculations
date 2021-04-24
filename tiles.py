@@ -68,10 +68,13 @@ def extract_overlapping_regions(arr, lat_range, tile_size=8, overlap=4):
             # plt.show()
     return regions, tile_pts
 
+cmip6_file = 'cmip6_historical_mdts_yr5_meta.txt'
+cmip6_path = '../a_mdt_data/datasets/cmip6/'
 
 cs_path = "../a_mdt_data/computations/currents/"
 masks = '../a_mdt_data/computations/masks/'
 mask = read_surface('mask_rr0004.dat', masks)
+
 training_fnames = [
     'dtu18_GO_CONS_GCF_2_DIR_R5_do0280_rr0004_cs.dat',  #300
     'dtu18_GO_CONS_GCF_2_TIM_R6_do0280_rr0004_cs.dat',  #300

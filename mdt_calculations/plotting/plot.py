@@ -14,6 +14,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     arr = np.flipud(arr)
     if lats is None and lons is None:
         lons, lats = create_coords(get_res(arr), central_lon=central_lon)
+    print(len(lons), len(lats))
     crs = ccrs.PlateCarree(central_longitude=central_lon)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection=crs)

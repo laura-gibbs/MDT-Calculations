@@ -168,6 +168,25 @@ def easy_plot(dat_file, dat_path, product, bds, figs_dir, figname, log=True):
     return surface
 
 
+def extract_region(mdt, lon_range, lat_range, central_lon=0, central_lat=0):
+    res = mdt.shape[0] // 180
+
+    px = ((lon_range[0] + central_lon) * res, (lon_range[1] + central_lon) * res)
+    py = ((-lat_range[1] + 90) * res, (-lat_range[0] + 90) * res)
+    print('here', py)
+    return mdt[py[0]:py[1], px[0]:px[1]]
+
+
+def norm(a):
+    return (a - np.nanmin(a)) / (np.nanmax(a) - np.nanmin(a))
+
+
+def bound_arr(arr, lower_bd, upper_bd):
+    arr[arr < lower_bd] = lower_bd
+    arr[arr > upper_bd] = upper_bd
+    return arr
+
+
 def main():
     mdts = '../a_mdt_data/computations/mdts/'
     mss = '../a_mdt_data/computations/mss/'
@@ -187,7 +206,7 @@ def main():
     cmip5_models = '../a_mdt_data/computations/cmip5_calcs/model_means/'
     cmip6_models = '../a_mdt_data/computations/cmip6_calcs/model_means/'
 
-    dtu_path = '../a_mdt_data/datasets/dtu/'
+    # dtu_path = '../a_mdt_data/datasets/dtu/'
     # cmip6_hist = read_surfaces('cmip6_historical_mdts_yr5.dat', cmip6_path, number=32, start=32)
     # mean_mdt = np.nanmean(cmip6_hist, axis=(0))
     # fig = plot(mean_mdt, bds=3)
@@ -199,28 +218,42 @@ def main():
 
     # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
 
+    gtim_cs = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs_band20.dat', cs)
+    gtim_cs = extract_region(gtim_cs, (-85, -55), (15, 45))
+    gtim_cs = norm(bound_arr(gtim_cs, 0, 2))
+
+    # mpi_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    # # mpi_cs = np.flipud(mpi_cs)
+    # mpi_cs = extract_region(mpi_cs, (-85, -55), (15, 45))
+    # print(np.nanmax(mpi_cs))
+    # mpi_cs[mpi_cs > 3.5] = 0
+    # print(np.nanmax(mpi_cs))
+    # mpi_cs = norm(bound_arr(mpi_cs, 0, 2))
     
-    # d_e = read_surface('dtu18_GO_CONS_GCF_2_DIR_R6_do0300_rr0004.dat', mdts)
-    # plot(d_e, product='mdt')#, coastlines=True)
+    # img_src = Image.open('quilting/DCGAN_32deg/cut-b32-n5_6.png').convert('L')
+    # # img_src = Image.open('quilting/WAE_MMD2_32deg/cut-b32-n5_0.png').convert('L')
+    # noise = np.array(img_src)
+
+    # noise = .4 * norm(noise)
+    # noise = noise[0:120, 0:120]
+    # mpi_noise = mpi_cs + noise
+    # mpi_noise[np.isnan(mpi_noise)] = 0
+    # mpi_cs[np.isnan(mpi_cs)] = 0
+    # fig, ax  = plt.subplots(2, 2)
+    # ax[0][0].imshow(mpi_cs, cmap='turbo')
+    # ax[0][1].imshow(noise, cmap='turbo')
+    # ax[1][0].imshow(mpi_noise, cmap='turbo')
+    # ax[1][1].imshow(gtim_cs, cmap='turbo')
     # plt.show()
 
-    # d_f = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs_band20.dat', cs)
-    # plot(d_f, product='cs', bds=2, extent='na', coastlines=True)
-    # plt.show()
-    # d_g = read_surface('dtu18_gtim5_do0280_rr0004_cs_band20.dat', cs)
-    # plot(d_g, product='cs', bds=7, extent='na', coastlines=True)
-    # plt.show()
-    # multi = np.asarray([d_g, d_e])
-    # multi_plot(multi, extent='gs', product='mdt')
-    # plt.show()
 
     cm = plt.get_cmap('turbo')
-    img_src = Image.open('quilting/s64/cut-b64-n10-o16-N100.png').convert('L')
+    img_src = Image.open('figs/197.png').convert('L')
     img = np.array(img_src)
     img = cm(img)
     img = np.uint8(img * 255)
     img = Image.fromarray(img)
-    img.save('quilting/s64/cut-b64-n10-o16-N100_turbo.png')
+    img.save('figs/197_turbo.png')
 
     # # Grab 244 
     # img_paths = glob.glob('../PyTorch-VAE/savedtiles/wae_mmd_rbf/WAE_MMD1_s64_0/*.png')
