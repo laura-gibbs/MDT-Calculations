@@ -95,8 +95,8 @@ training_fnames = [
     # additional
     # 'dtu18_XGM2019e_2159_do0280_rr0004_cs.dat',         #2190
     # 'dtu18_SGG-UGM-1_do0280_rr0004_cs.dat',             #2159
-    # 'dtu18_EIGEN-6C3stat_do0280_rr0004_cs.dat',        #1949
-    # 'dtu18_EIGEN-6C2_do0280_rr0004_cs.dat'            #1949
+    # 'dtu18_EIGEN-6C3stat_do0280_rr0004_cs.dat',         #1949
+    # 'dtu18_EIGEN-6C2_do0280_rr0004_cs.dat'              #1949
 
 ]
 
@@ -105,23 +105,23 @@ testing_fnames = [
 ]
 
 for i, fname in enumerate(training_fnames):
-    cs = read_surface(fname, cs_path)
-    # plot(cs)
+    arr = read_surface(fname, mdt_path)
+    # plot(arr)
     # plt.show()
-    cs = norm(bound_arr(cs + mask, 0, 2))
-    # plt.imshow(cs)
+    arr = norm(bound_arr(arr + mask, 0, 2))
+    # plt.imshow(arr)
     # plt.show()
-    regions, tile_pts = extract_overlapping_regions(cs, (-64, 64))
+    regions, tile_pts = extract_overlapping_regions(arr, (-64, 64))
     for region, tile_pt in zip(regions, tile_pts):
         save_img(region, 'tile'+str(tile_pt), str(i), training=True)
 
 for i, fname in enumerate(testing_fnames):
-    cs = read_surface(fname, cs_path)
-    # plot(cs)
+    arr = read_surface(fname, mdt_path)
+    # plot(arr)
     # plt.show()
-    cs = norm(bound_arr(cs + mask, 0, 2))
-    # plt.imshow(cs)
+    arr = norm(bound_arr(arr + mask, 0, 2))
+    # plt.imshow(arr)
     # plt.show()
-    regions, tile_pts = extract_overlapping_regions(cs, (-64, 64))
+    regions, tile_pts = extract_overlapping_regions(arr, (-64, 64))
     for region, tile_pt in zip(regions, tile_pts):
         save_img(region, 'tile'+str(tile_pt), str(i), training=False)
