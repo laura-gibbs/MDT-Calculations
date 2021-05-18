@@ -218,42 +218,44 @@ def main():
 
     # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
 
-    gtim_cs = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs_band20.dat', cs)
-    gtim_cs = extract_region(gtim_cs, (-85, -55), (15, 45))
-    gtim_cs = norm(bound_arr(gtim_cs, 0, 2))
+    cs_surface = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs_band20.dat', cs)
+    # plot(cs_surface, product='cs', bds=2, central_lon=180)#, extent='gs')
+    cs_surface = extract_region(cs_surface, (-85, -55), (15, 45))
+    # cs_surface = extract_region(cs_surface, (-65, -35), (30, 60))
+    cs_surface = norm(bound_arr(cs_surface, 0, 2))
 
-    # mpi_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
-    # # mpi_cs = np.flipud(mpi_cs)
-    # mpi_cs = extract_region(mpi_cs, (-85, -55), (15, 45))
-    # print(np.nanmax(mpi_cs))
-    # mpi_cs[mpi_cs > 3.5] = 0
-    # print(np.nanmax(mpi_cs))
-    # mpi_cs = norm(bound_arr(mpi_cs, 0, 2))
+    mpi_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
+    # mpi_cs = np.flipud(mpi_cs)
+    mpi_cs = extract_region(mpi_cs, (-85, -55), (15, 45))
+    print(np.nanmax(mpi_cs))
+    mpi_cs[mpi_cs > 3.5] = 0
+    print(np.nanmax(mpi_cs))
+    mpi_cs = norm(bound_arr(mpi_cs, 0, 2))
     
-    # img_src = Image.open('quilting/DCGAN_32deg/cut-b32-n5_6.png').convert('L')
-    # # img_src = Image.open('quilting/WAE_MMD2_32deg/cut-b32-n5_0.png').convert('L')
-    # noise = np.array(img_src)
+    # img_src = Image.open('quilting/DCGAN_quilted/cut-b32-n5_0.png').convert('L')
+    img_src = Image.open('quilting/WAE_MMD2_32_quilted/cut-b32-n5_0.png').convert('L')
+    noise = np.array(img_src)
 
-    # noise = .4 * norm(noise)
-    # noise = noise[0:120, 0:120]
-    # mpi_noise = mpi_cs + noise
-    # mpi_noise[np.isnan(mpi_noise)] = 0
-    # mpi_cs[np.isnan(mpi_cs)] = 0
-    # fig, ax  = plt.subplots(2, 2)
-    # ax[0][0].imshow(mpi_cs, cmap='turbo')
-    # ax[0][1].imshow(noise, cmap='turbo')
-    # ax[1][0].imshow(mpi_noise, cmap='turbo')
-    # ax[1][1].imshow(gtim_cs, cmap='turbo')
-    # plt.show()
+    noise = .4* norm(noise)
+    noise = noise[0:120, 0:120]
+    mpi_noise = mpi_cs + noise
+    mpi_noise[np.isnan(mpi_noise)] = 0
+    mpi_cs[np.isnan(mpi_cs)] = 0
+    fig, ax  = plt.subplots(2, 2)
+    ax[0][0].imshow(mpi_cs, cmap='turbo')
+    ax[0][1].imshow(noise, cmap='turbo')
+    ax[1][0].imshow(mpi_noise, cmap='turbo')
+    ax[1][1].imshow(cs_surface, cmap='turbo')
+    plt.show()
 
 
-    cm = plt.get_cmap('turbo')
-    img_src = Image.open('figs/197.png').convert('L')
-    img = np.array(img_src)
-    img = cm(img)
-    img = np.uint8(img * 255)
-    img = Image.fromarray(img)
-    img.save('figs/197_turbo.png')
+    # cm = plt.get_cmap('turbo')
+    # img_src = Image.open('figs/meeting/390.png').convert('L')
+    # img = np.array(img_src)
+    # img = cm(img)
+    # img = np.uint8(img * 255)
+    # img = Image.fromarray(img)
+    # img.save('figs/meeting/390_turbo.png')
 
     # # Grab 244 
     # img_paths = glob.glob('../PyTorch-VAE/savedtiles/wae_mmd_rbf/WAE_MMD1_s64_0/*.png')

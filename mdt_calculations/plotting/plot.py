@@ -140,7 +140,7 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
     if title is not None:
         plt.title(title, fontsize=21, pad=15)
     
-    # plt.show()
+    plt.show()
     return fig
 
 
