@@ -7,6 +7,10 @@
 *.gif
 *.bat
 *.txt
+*.pdf
+cs_params.txt
+parameters.txt
+*.zip
 
 .vscode/
 __pycache__/
