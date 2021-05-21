@@ -8,8 +8,8 @@
 *.bat
 *.txt
 *.pdf
-cs_params.txt
-parameters.txt
+C:\Users\oa18724\Documents\Master_PhD_folder\MDT-Calculations\cs_params.txt
+C:\Users\oa18724\Documents\Master_PhD_folder\MDT-Calculations\parameters.txt
 *.zip
 
 .vscode/
