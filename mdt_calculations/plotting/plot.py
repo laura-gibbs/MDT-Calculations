@@ -71,6 +71,11 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             y0, y1 = 20, 70
             x_ticks = 8
             y_ticks = 6
+        if extent == 'test':
+            x0, x1 = 0, 32
+            y0, y1 = -32, -64
+            x_ticks = 6
+            y_ticks = 6
         ax.set_extent((x0, x1, y0, y1), crs=crs)
         ax.set_xticks(np.linspace(x0, x1, x_ticks), crs=crs)
         ax.set_yticks(np.linspace(y0, y1, y_ticks), crs=crs)
@@ -130,6 +135,8 @@ def plot(arr, cmap='turbo', central_lon=0, bds=1.4, coastlines=False,
             #     plt.gcf().text(0.8855, 0.858, 'm', fontsize=11)
             # elif product == 'cs':
             #     plt.gcf().text(0.865, 0.89, 'm/s', fontsize=11)
+        elif extent is not None:
+            cbar = fig.colorbar(im, ax=ax, fraction=0.041, pad=0.15, ticks=ticks)
     cbar.ax.set_yticklabels([dp.format(tick) for tick in ticks])
     cbar.ax.tick_params(axis='y', length=8, width=1, labelsize=7)
     plt.tick_params(length=10, width=1, labelright='True')

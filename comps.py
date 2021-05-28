@@ -15,6 +15,7 @@ import random
 import math
 from scipy.fft import fft2, ifft2, fftfreq, fftn, ifftn
 from matplotlib.colors import LogNorm
+from scipy.ndimage import gaussian_filter
 
 
 def calc_mean(txt_file, dat_file, path, fig_dir, dat_dir, mean_per='model', plot_bool=False, write=False):
@@ -187,6 +188,23 @@ def bound_arr(arr, lower_bd, upper_bd):
     return arr
 
 
+def apply_gaussian(arr, sigma=1.6, bd=-1.5):
+    V = arr.copy()
+    mask = np.ones_like(arr)
+    mask[np.isnan(arr)] = np.nan
+    V[np.isnan(arr)] = 0
+    VV = gaussian_filter(V, sigma=sigma)
+
+    W = 0*arr.copy() + 1
+    W[np.isnan(arr)] = 0
+    WW = gaussian_filter(W, sigma=sigma)
+
+    arr = VV/WW * mask
+    # arr[np.isnan(arr)] = bd
+
+    return arr
+
+
 def main():
     mdts = '../a_mdt_data/computations/mdts/'
     mss = '../a_mdt_data/computations/mss/'
@@ -207,20 +225,16 @@ def main():
     cmip6_models = '../a_mdt_data/computations/cmip6_calcs/model_means/'
 
     # dtu_path = '../a_mdt_data/datasets/dtu/'
-    cmip5_hist = read_surfaces('cmip5_historical_mdts_yr5.dat', cmip5_path, number=31, start=4707)
+    # cmip5_hist = read_surfaces('cmip5_historical_mdts_yr5.dat', cmip5_path, number=31, start=4707)
     # mean_mdt = np.nanmean(cmip6_hist, axis=(0))
     # fig = plot(mean_mdt, bds=3)
     # fig.set_size_inches((20, 10.25))
 
-    test = read_surface('../a_mdt_data/ HR_model_data/cmip6_currents/HadGEM3-GC31-MM_r4i1p1f3_gn_1981_cs.dat')
-    plot(test, product='cs')
-    plt.show()
-
-    year = 1851
-    for i in range(31):
-        filename = 'cmip5_models/MPI-ESM-MR_r3i1p1_' + str(year)
-        write_surface(filename, cmip5_hist[i])
-        year = year + 5
+    # year = 1851
+    # for i in range(31):
+    #     filename = 'cmip5_models/MPI-ESM-MR_r3i1p1_' + str(year)
+    #     write_surface(filename, cmip5_hist[i])
+    #     year = year + 5
 
     # means = calc_mean(cmip6_file, cmip6_datfile, cmip6_path, '../a_mdt_data/figs/cmip6/model_means/', '../a_mdt_data/computations/cmip6_calcs/model_means/',
     #                   mean_per='model')
@@ -228,11 +242,18 @@ def main():
 
     # # fig.savefig(figs_dir+'cls/cls18_cs', dpi=300)
 
-    cs_surface = read_surface('dtu18_eigen-6c4_do0280_rr0004_cs_band20.dat', cs)
-    # plot(cs_surface, product='cs', bds=2, central_lon=180)#, extent='gs')
-    cs_surface = extract_region(cs_surface, (-85, -55), (15, 45))
-    # cs_surface = extract_region(cs_surface, (-65, -35), (30, 60))
-    cs_surface = norm(bound_arr(cs_surface, 0, 2))
+    target_img = np.load('../a_mdt_data/HR_model_data/training_regions/CNRM-CM6-1-HR_r1i1p1f2_gn_2001_cs_0_488.npy')
+    quilt = Image.open('../MDT-Denoising/quilting/DCGAN_quilted/cut-b32-n5_0.png')
+    quilt = quilt.convert(mode='L')
+    quilt = np.array(quilt).astype(np.float32)
+    mask = target_img != 0
+    quilt = (quilt - np.nanmin(quilt)) / (np.nanmax(quilt) - np.nanmin(quilt))
+    img = target_img + .3* quilt * mask
+    img = apply_gaussian(img) * mask
+    plt.imshow((target_img), cmap='turbo')
+    plt.show()
+
+    # plot(cs_surface, product='cs', bds=1.4, extent='test')#, lats=(32,64), lons=(32, 64))
 
     mpi_cs = read_surface('MPI-ESM1-2-HR_cs.dat', cs)
     # mpi_cs = np.flipud(mpi_cs)
