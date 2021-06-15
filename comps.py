@@ -207,20 +207,21 @@ def main():
     cmip6_models = '../a_mdt_data/computations/cmip6_calcs/model_means/'
 
     # dtu_path = '../a_mdt_data/datasets/dtu/'
-    cmip5_hist = read_surfaces('cmip5_historical_mdts_yr5.dat', cmip5_path, number=31, start=4707)
+    # cmip5_hist = read_surfaces('cmip5_historical_mdts_yr5.dat', cmip5_path, number=31, start=4707)
     # mean_mdt = np.nanmean(cmip6_hist, axis=(0))
     # fig = plot(mean_mdt, bds=3)
     # fig.set_size_inches((20, 10.25))
 
-    test = read_surface('../a_mdt_data/ HR_model_data/cmip6_currents/HadGEM3-GC31-MM_r4i1p1f3_gn_1981_cs.dat')
-    plot(test, product='cs')
-    plt.show()
+    test = read_surface('../a_mdt_data/HR_model_data/cmip6_models/CMCC-CM2-HR4_r1i1p1f1_gn_1851.dat')
+    print('test:', np.any(np.isnan(test)))
+    # plot(test, product='cs')
+    # plt.show()
 
-    year = 1851
-    for i in range(31):
-        filename = 'cmip5_models/MPI-ESM-MR_r3i1p1_' + str(year)
-        write_surface(filename, cmip5_hist[i])
-        year = year + 5
+    # year = 1851
+    # for i in range(31):
+    #     filename = 'cmip5_models/MPI-ESM-MR_r3i1p1_' + str(year)
+    #     write_surface(filename, cmip5_hist[i])
+    #     year = year + 5
 
     # means = calc_mean(cmip6_file, cmip6_datfile, cmip6_path, '../a_mdt_data/figs/cmip6/model_means/', '../a_mdt_data/computations/cmip6_calcs/model_means/',
     #                   mean_per='model')

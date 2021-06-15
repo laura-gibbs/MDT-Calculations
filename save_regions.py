@@ -24,7 +24,8 @@ for i in range((y1 - y0) // 128):
         x_coords.append(x)
         y_coords.append(y)
 
-filenames = glob.glob('../a_mdt_data/HR_model_data/nemo_currents/*.dat')
+mdt = True
+filenames = glob.glob('../a_mdt_data/HR_model_data/cmip6_models/*.dat')
 for fname in filenames:
     arr = read_surface(fname)
     fname = os.path.split(fname)[-1]
@@ -32,13 +33,12 @@ for fname in filenames:
     for x, y in zip(x_coords, y_coords):
         region = arr[y:y+128, x:x+128]
         # Naming needs to be fixed
-        if (np.count_nonzero(region==0)/(region.size)) < 0.0125:
-            np.save('../a_mdt_data/HR_model_data/qtrland_nemo/' + fname + f'_{x}_{y}', region)
+        if mdt:
+            nans = np.isnan(arr)
+            arr[nans] = 0
+        if (np.count_nonzero(region==0)/(region.size)) < 0.25:
+            np.save('../a_mdt_data/HR_model_data/mdt_training_regions/' + fname + f'_{x}_{y}', region)
             print("valid region", x, y)
         else:
             print("not valid region", x, y)
-            # img = (region - np.nanmin(region)) / (np.nanmax(region) - np.nanmin(region))
-            # img = (img * 255).astype('uint8')
-            # img = Image.fromarray(img)
-            # img.save(fname + f'_{x}' + f'_{y}.png')
-            # pass
+        

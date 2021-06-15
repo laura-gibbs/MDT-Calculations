@@ -84,14 +84,14 @@ training_fnames = [
     'dtu18_GO_CONS_GCF_2_DIR_R6_do0280_rr0004.dat',  #300-
     'dtu18_GO_CONS_GCF_2_TIM_R5_do0280_rr0004.dat',  #280-
     'dtu18_GO_CONS_GCF_2_SPW_R2_do0240_rr0004.dat',  #240-
-    # 'dtu18_GTIM5_R6e_do0280_rr0004.dat',             #300 - not available on home pc
-    'dtu18_eigen-6c4_do0280_rr0004.dat',             #2190-
-    'dtu18_egm2008_do0280_rr0004.dat',               #2190-
-    'dtu18_geco_do0280_rr0004.dat',                  #2190-
+    'dtu18_GTIM5_R6e_do0280_rr0004.dat',             #300 - not available on home pc
+    # 'dtu18_eigen-6c4_do0280_rr0004.dat',             #2190-
+    # 'dtu18_egm2008_do0280_rr0004.dat',               #2190-
+    # 'dtu18_geco_do0280_rr0004.dat',                  #2190-
     # 'dtu18_IGGT_R1_do0240_rr0004.dat',               #240
-    # 'dtu18_IfE_GOCE05s_do0250_rr0004.dat',           #250
-    'dtu18_GGM05c_do0280_rr0004.dat',                #360-
-    'dtu18_GAO2012_do0280_rr0004.dat',               #360-
+    'dtu18_IfE_GOCE05s_do0250_rr0004.dat',           #250
+    # 'dtu18_GGM05c_do0280_rr0004.dat',                #360-
+    # 'dtu18_GAO2012_do0280_rr0004.dat',               #360-
     # additional
     # 'dtu18_XGM2019e_2159_do0280_rr0004.dat',         #2190
     # 'dtu18_SGG-UGM-1_do0280_rr0004.dat',             #2159
@@ -104,11 +104,15 @@ testing_fnames = [
     'dtu18_goco05s_do0280_rr0004.dat',               #280-
 ]
 
+cs = False
 for i, fname in enumerate(training_fnames):
     arr = read_surface(fname, mdt_path)
     # plot(arr)
     # plt.show()
-    arr = norm(bound_arr(arr + mask, 0, 2))
+    if cs:
+        arr = norm(bound_arr(arr + mask, 0, 2))
+    else:
+        arr = norm(bound_arr(arr + mask, -2, 2))
     # plt.imshow(arr)
     # plt.show()
     regions, tile_pts = extract_overlapping_regions(arr, (-64, 64))
@@ -119,7 +123,10 @@ for i, fname in enumerate(testing_fnames):
     arr = read_surface(fname, mdt_path)
     # plot(arr)
     # plt.show()
-    arr = norm(bound_arr(arr + mask, 0, 2))
+    if cs:
+        arr = norm(bound_arr(arr + mask, 0, 2))
+    else:
+        arr = norm(bound_arr(arr + mask, -2, 2))
     # plt.imshow(arr)
     # plt.show()
     regions, tile_pts = extract_overlapping_regions(arr, (-64, 64))
