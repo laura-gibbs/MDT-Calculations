@@ -230,6 +230,10 @@ def main():
     # fig = plot(mean_mdt, bds=3)
     # fig.set_size_inches((20, 10.25))
 
+    nemo_test = read_surface(r"C:\Users\oa18724\Documents\Master_PhD_folder\a_mdt_data\HR_model_data\nemo_currents\ORCA0083-N06_1958m02_ssha_12th_cs.dat")
+    plot(nemo_test, product='cs')
+    plt.show()
+
     test = read_surface('../a_mdt_data/HR_model_data/cmip6_models/CMCC-CM2-HR4_r1i1p1f1_gn_1851.dat')
     print('test:', np.any(np.isnan(test)))
     # plot(test, product='cs')
