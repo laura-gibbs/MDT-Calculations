@@ -234,10 +234,10 @@
 !     Calculate the coriolis parameter 
 !------------------------------------------------
       do j=1,JJ
-            if(lat(j)<10 .AND. lat(j)>0)then
-                  lat(j)=10
-            else if (lat(j)>-10 .AND. lat(j)<0)then
-                  lat(j)=-10
+            if(lat(j)<1 .AND. lat(j)>0)then
+                  lat(j)=1
+            else if (lat(j)>-1 .AND. lat(j)<0)then
+                  lat(j)=-1
             end if
          f0(j) = 2.0*omega*sin(torad*lat(j))
       end do
